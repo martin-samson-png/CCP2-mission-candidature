@@ -2,6 +2,42 @@ class UsersController {
   constructor(usersService) {
     this.usersService = usersService;
   }
+
+  async register(req, res) {
+    const { username, email, password, role } = req.body;
+    try {
+      const newUser = await this.usersService.register({
+        username,
+        email,
+        password,
+        role,
+      });
+      res.status(201).json(newUser);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ erreur: err.message });
+    }
+  }
+
+  async login(req, res) {
+    const { email, password } = req.body;
+    try {
+      const { token, user } = await this.usersService.login({
+        email,
+        password,
+      });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        expire: new Date(Date.now() * 3600000),
+      });
+      res.status(200).json(user);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ erreur: err.message });
+    }
+  }
 }
 
 export default UsersController;
