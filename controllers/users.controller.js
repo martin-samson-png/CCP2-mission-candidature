@@ -1,3 +1,5 @@
+import cleanUser from "../cleanUser.js";
+
 class UsersController {
   constructor(usersService) {
     this.usersService = usersService;
@@ -26,13 +28,28 @@ class UsersController {
         email,
         password,
       });
+
       res.cookie("token", token, {
         httpOnly: true,
         secure: true,
         sameSite: "None",
-        expire: new Date(Date.now() * 3600000),
+        expires: new Date(Date.now() + 3600000),
       });
+
       res.status(200).json(user);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ erreur: err.message });
+    }
+  }
+
+  async authentification(req, res) {
+    const userId = req.user.id;
+    console.log(userId);
+
+    try {
+      const user = await this.usersService.getUserById(userId);
+      res.status(200).json(cleanUser(user));
     } catch (err) {
       console.error(err.message);
       res.status(500).json({ erreur: err.message });
