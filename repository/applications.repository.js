@@ -94,7 +94,7 @@ class ApplicationsRepository {
       SELECT a.id, a.status,u.username, 
       m.title AS title
       FROM applications a JOIN users u ON u.id = a.idUser
-      JOIN missions m ON m.id = a.idMission WHERE a.idMission = ? AND a.idUser =?
+      JOIN missions m ON m.id = a.idMission WHERE a.idMission = ? AND a.idUser = ?
     `,
         [missionId, volunteerId]
       );
@@ -106,7 +106,7 @@ class ApplicationsRepository {
 
   async deleteApplication(id) {
     try {
-      const [result] = await this.pool.query(
+      await this.pool.query(
         `
         DELETE FROM applications WHERE id = ?
         `,

@@ -5,6 +5,7 @@ import buildContainer from "./build.container.js";
 import usersRoute from "./routes/users.route.js";
 import missionsRoute from "./routes/missions.route.js";
 import applicationsRoute from "./routes/application.route.js";
+import errorHandler from "./middleware/handleError.js";
 
 dotenv.config();
 
@@ -21,6 +22,8 @@ const applicationsController = container.applicationsController;
 app.use("/users", usersRoute(usersController));
 app.use("/missions", missionsRoute(missionsController));
 app.use("/applications", applicationsRoute(applicationsController));
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log("LocalHost connecté", PORT);
