@@ -31,6 +31,16 @@ class MissionsController {
     }
   }
 
+  async getBrowsing(req, res) {
+    const userId = req.user.id;
+    try {
+      const mission = await this.missionsService.getBrowsing(userId);
+      res.status(200).json(mission);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+
   async getAllMissions(req, res) {
     const missions = await this.missionsService.getAllMissions();
     res.status(200).json(missions);
