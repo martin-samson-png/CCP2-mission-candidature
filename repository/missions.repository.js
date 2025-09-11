@@ -15,7 +15,7 @@ class MissionsRepository {
       const missionId = result.insertId;
       const [rows] = await this.pool.query(
         `
-        SELECT u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
+        SELECT m.id u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
         FROM missions m JOIN users u ON u.id = m.idUser WHERE m.id = ?
         `,
         [missionId]
@@ -44,7 +44,7 @@ class MissionsRepository {
   async getAllMissions() {
     const [rows] = await this.pool.query(
       `
-        SELECT u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
+        SELECT m.id, u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
         FROM missions m JOIN users u ON u.id = m.idUser WHERE status = "open"
       `
     );
@@ -53,8 +53,8 @@ class MissionsRepository {
 
   async getBrowsing(userId) {
     const [rows] = await this.pool.query(
-      `
-        SELECT u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
+      ` 
+        SELECT m.id,u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
         FROM missions m JOIN users u ON u.id = m.idUser WHERE m.idUser = ? AND status = "closed"
       `,
       [userId]
@@ -65,7 +65,7 @@ class MissionsRepository {
   async getMissionByUserId(userId) {
     const [rows] = await this.pool.query(
       `
-        SELECT username AS creator, title, descr, start_date, end_date, status 
+        SELECT m.id, username AS creator, title, descr, start_date, end_date, status 
         FROM missions m JOIN users u ON u.id = m.idUser WHERE m.idUser = ? AND status = "open"
         `,
       [userId]
@@ -86,7 +86,7 @@ class MissionsRepository {
       );
       const [rows] = await this.pool.query(
         `
-        SELECT u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
+        SELECT m.id u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
         FROM missions m JOIN users u ON u.id = m.idUser WHERE m.id = ?
         `,
         [id]
@@ -105,7 +105,7 @@ class MissionsRepository {
         `,
         [id]
       );
-      return result.affectedRows;
+      return true;
     } catch (err) {
       throw new Error("Erreur lors de la suppression de la mission");
     }

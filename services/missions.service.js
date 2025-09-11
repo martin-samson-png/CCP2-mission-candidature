@@ -79,7 +79,7 @@ class MissionsService {
   }
 
   async deleteMission(id, userId) {
-    if (!id) {
+    if (!id || !idUser) {
       throw new Error("Champs manquant");
     }
     try {
