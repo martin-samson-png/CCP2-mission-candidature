@@ -45,8 +45,6 @@ class UsersController {
 
   async authentification(req, res) {
     const userId = req.user.id;
-    console.log(userId);
-
     try {
       const user = await this.usersService.getUserById(userId);
       res.status(200).json(cleanUser(user));
