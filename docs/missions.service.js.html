@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: missions.service.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: missions.service.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import ArgumentRequiredException from "../exceptions/argument.required.js";
+import DataNotFoundException from "../exceptions/data.not.found.js";
+import ForbiddenException from "../exceptions/forbidden.js";
+import DataAlreadyExistException from "../exceptions/data.already.exists.js";
+
+/**
+ * Service de gestion des missions
+ * Contient la logique métier et les validations avant l'accès aux données
+ */
+class MissionsService {
+  /**
+   * @typedef {Object} MissionsRepository
+   * @description Repository des missions, fournit les méthodes d'accès à la base.
+   */
+
+  /**
+   * @param {MissionsRepository} missionsRepository - Repository des missions
+   */
+  constructor(missionsRepository) {
+    this.missionsRepository = missionsRepository;
+  }
+
+  /**
+   * Vérifie si un titre de mission est unique pour l'utilisateur
+   * @param {Number} userId - ID de l'utilisateur
+   * @param {String} title - Titre de la mission
+   * @returns {Promise&lt;Object|null>} Mission trouvée ou null si inexistante
+   */
+  async checkMissionTitleUnique({ userId, title }) {
+    return await this.missionsRepository.checkMissionTitleUnique({
+      userId,
+      title,
+    });
+  }
+
+  /**
+   * Récupère une mission pas son ID
+   * @param {Number} id - ID de la mission
+   * @return {Promise&lt;Object|null>} Mission trouvée ou null si inexistante
+   */
+  async getMissionById(id) {
+    return await this.missionsRepository.getMissionById(id);
+  }
+
+  /**
+   * Crée une nouvelle mission
+   * @param {Number} userId - ID de l'utilisateur
+   * @param {String} title - Titre
+   * @param {String} descr - Description
+   * @param {String} start_date - Date de début (YYYY-MM-DD)
+   * @param {String} end_date - Date de fin (YYYY-MM-DD)
+   * @returns {Promise&lt;Object>}  Mission insérée et récuperée depuis la base de données
+   * @throws {ArgumentRequiredException|DataAlreadyExistException}
+   */
+  async createMission({ userId, title, descr, start_date, end_date }) {
+    if (!userId || !title || !descr || !start_date || !end_date) {
+      throw new ArgumentRequiredException("Champs obligatoires manquants");
+    }
+    const isTitleUnique = await this.checkMissionTitleUnique({
+      userId,
+      title,
+    });
+    if (isTitleUnique) {
+      throw new DataAlreadyExistException("Titre de mission déjà utilisé");
+    }
+    const newMission = await this.missionsRepository.createMission({
+      userId,
+      title,
+      descr,
+      start_date,
+      end_date,
+    });
+    return newMission;
+  }
+
+  /**
+   * Récupère les missions de l'utilisateur disponible
+   * @param {Number} userId - ID de l'association
+   * @returns {Promise&lt;Object>} Missions créer pas un utilisateur ayant le status "open"
+   * @throws {ArgumentRequiredException}
+   */
+  async getMissionByUserId(userId) {
+    if (!userId) {
+      throw new ArgumentRequiredException("Champ obligatoire manquant");
+    }
+    return await this.missionsRepository.getMissionByUserId(userId);
+  }
+
+  /**
+   * Récupère les anciennes missions de l'utilisateur
+   * @param {Number} userId - ID de l'association
+   * @returns {Promise&lt;Object>} Missions créer pas un utilisateur ayant le status "closed"
+   * @throws {ArgumentRequiredException}
+   */
+  async getBrowsing(userId) {
+    if (!userId) {
+      throw new ArgumentRequiredException("Champ obligatoire manquant");
+    }
+    return await this.missionsRepository.getBrowsing(userId);
+  }
+
+  /**Récupère toutes les missions disponible
+   * @returns {Promise&lt;Object>} - Toutes les missions ayant le stats "open"
+   */
+  async getAllMissions() {
+    return await this.missionsRepository.getAllMissions();
+  }
+
+  /**
+   * Met à jour les données de la mission
+   * @param {Number} id - ID de la mission
+   * @param {Number} userId - ID de l'association
+   * @param {Object} update - Donées à modifier
+   * @returns {Promise&lt;Object>} - Mission avec les données mis à jour
+   * @throws {ArgumentRequiredException|DataNotFoundException|ForbiddenException}
+   */
+  async updateMission(id, userId, update) {
+    if (!id || !update || Object.keys(update).length === 0) {
+      throw new ArgumentRequiredException("Champ obligatoire manquant");
+    }
+    const mission = await this.getMissionById(id);
+    if (!mission) {
+      throw new DataNotFoundException("Mission inexistante");
+    }
+    if (mission.idUser !== userId) {
+      throw new ForbiddenException("Accès interdit");
+    }
+
+    return await this.missionsRepository.updateMission({ id, update });
+  }
+
+  /**
+   * Supprime une mission
+   * @param {Number} id - ID de la mission
+   * @param {Number} userId - ID de l'utilisateur
+   * @returns {Promise&lt;Boolean>} - Renvoie true
+   * @throws {DataNotFoundException|ForbiddenException}
+   */
+  async deleteMission(id, userId) {
+    if (!id || !userId) {
+      throw new ArgumentRequiredException("Champ obligatoire manquant");
+    }
+
+    const mission = await this.getMissionById(id);
+    if (!mission) {
+      throw new DataNotFoundException("Mission inexistante");
+    }
+    if (mission.idUser !== userId) {
+      throw new ForbiddenException("Accès interdit");
+    }
+    await this.missionsRepository.deleteMission(id);
+    return true;
+  }
+}
+
+export default MissionsService;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="MissionsService.html">MissionsService</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Sep 12 2025 14:59:46 GMT+0200 (heure d’été d’Europe centrale)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
