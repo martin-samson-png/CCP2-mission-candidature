@@ -1,20 +1,21 @@
 const errorHandler = (err, req, res, next) => {
-  console.log("Error occurred:", err.message);
-  switch (err.message) {
+  switch (err.name) {
     case "ArgumentRequired":
-      return res.status(400).json({ message: "Donnée manquante" });
-    case "IncorrectData":
-      return res.status(401).json({ message: "Incorrect Data" });
+      return res.status(400).json({ message: err.message });
     case "Unauthorized":
-      return res.status(403).json({ message: "Accès interdit " });
-    case "DataAlreadyExist":
-      return res.status(409).json({ message: "Donnée déjà existante" });
+      return res.status(401).json({ message: err.message });
+    case "Forbidden":
+      return res.status(403).json({ message: err.message });
     case "DataNotFound":
-      return res.status(404).json({ message: "Donnée non trouvé" });
+      return res.status(404).json({ message: err.message });
+    case "DataAlreadyExist":
+      return res.status(409).json({ message: err.message });
+    case "IncorrectData":
+      return res.status(422).json({ message: err.message });
     case "DatabaseException":
       return res
         .status(500)
-        .json({ message: "Une erreur de base de données s'est produite" });
+        .json({ message: err.message || "Erreur de base de données" });
     default:
       return res
         .status(500)

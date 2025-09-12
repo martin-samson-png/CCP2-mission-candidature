@@ -5,3 +5,5 @@ class ArgumentRequiredException extends Error {
     this.code = 400;
   }
 }
+
+export default ArgumentRequiredException;

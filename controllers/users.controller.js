@@ -5,7 +5,7 @@ class UsersController {
     this.usersService = usersService;
   }
 
-  async register(req, res) {
+  async register(req, res, next) {
     const { username, email, password, role } = req.body;
     try {
       const newUser = await this.usersService.register({
@@ -17,11 +17,11 @@ class UsersController {
       res.status(201).json(newUser);
     } catch (err) {
       console.error(err.message);
-      res.status(500).json({ erreur: err.message });
+      next(err);
     }
   }
 
-  async login(req, res) {
+  async login(req, res, next) {
     const { email, password } = req.body;
     try {
       const { token, user } = await this.usersService.login({
@@ -39,22 +39,22 @@ class UsersController {
       res.status(200).json(user);
     } catch (err) {
       console.error(err.message);
-      res.status(500).json({ erreur: err.message });
+      next(err);
     }
   }
 
-  async authentification(req, res) {
+  async authentification(req, res, next) {
     const userId = req.user.id;
     try {
       const user = await this.usersService.getUserById(userId);
       res.status(200).json(cleanUser(user));
     } catch (err) {
       console.error(err.message);
-      res.status(500).json({ erreur: err.message });
+      next(err);
     }
   }
 
-  async logout(req, res) {
+  async logout(req, res, next) {
     try {
       res.cookie("token", "", {
         httpOnly: true,
@@ -65,7 +65,7 @@ class UsersController {
       res.status(200).json({ message: "Deconnexion réussie" });
     } catch (err) {
       console.error(err.message);
-      res.status(500).json({ erreur: err.message });
+      next(err.message);
     }
   }
 }
