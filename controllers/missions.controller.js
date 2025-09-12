@@ -1,15 +1,28 @@
+/**
+ * @description Contrôleur des missions.
+ * Gère les requêtes HTTP liées aux missions et délègue la logique au service.
+ */
 class MissionsController {
+  /**
+   * @param {Object} missionsService - Service des missions
+   */
   constructor(missionsService) {
     this.missionsService = missionsService;
   }
+
+  /**
+   * Crée une nouvelle mission.
+   * @param {import("express").Request} req - Requête Express (contient le corps et l'utilisateur)
+   * @param {import("express").Response} res - Réponse Express
+   * @param {Function} next - Middleware suivant
+   * @returns {Promise<void>} Envoie la mission créée en JSON
+   */
   async createMission(req, res, next) {
     const { title, descr, start_date, end_date } = req.body;
-    console.log({ title, descr, start_date, end_date });
-
     const userId = req.user.id;
     try {
       const newMission = await this.missionsService.createMission({
-        userId: userId,
+        userId,
         title,
         descr,
         start_date,
@@ -22,6 +35,13 @@ class MissionsController {
     }
   }
 
+  /**
+   * Récupère les missions d'un utilisateur.
+   * @param {import("express").Request} req - Requête Express
+   * @param {import("express").Response} res - Réponse Express
+   * @param {Function} next - Middleware suivant
+   * @returns {Promise<void>} Envoie les missions en JSON
+   */
   async getMissionByUserId(req, res, next) {
     const userId = req.user.id;
     try {
@@ -33,6 +53,13 @@ class MissionsController {
     }
   }
 
+  /**
+   * Récupère les missions fermées ("browsing") d'un utilisateur.
+   * @param {import("express").Request} req - Requête Express
+   * @param {import("express").Response} res - Réponse Express
+   * @param {Function} next - Middleware suivant
+   * @returns {Promise<void>} Envoie les missions en JSON
+   */
   async getBrowsing(req, res, next) {
     const userId = req.user.id;
     try {
@@ -44,6 +71,13 @@ class MissionsController {
     }
   }
 
+  /**
+   * Récupère toutes les missions ouvertes.
+   * @param {import("express").Request} req - Requête Express
+   * @param {import("express").Response} res - Réponse Express
+   * @param {Function} next - Middleware suivant
+   * @returns {Promise<void>} Envoie les missions en JSON
+   */
   async getAllMissions(req, res, next) {
     try {
       const missions = await this.missionsService.getAllMissions();
@@ -54,6 +88,13 @@ class MissionsController {
     }
   }
 
+  /**
+   * Met à jour une mission.
+   * @param {import("express").Request} req - Requête Express (params.id, body)
+   * @param {import("express").Response} res - Réponse Express
+   * @param {Function} next - Middleware suivant
+   * @returns {Promise<void>} Envoie la mission mise à jour en JSON
+   */
   async updateMission(req, res, next) {
     const id = Number(req.params.id);
     const userId = req.user.id;
@@ -71,6 +112,13 @@ class MissionsController {
     }
   }
 
+  /**
+   * Supprime une mission.
+   * @param {import("express").Request} req - Requête Express (params.id)
+   * @param {import("express").Response} res - Réponse Express
+   * @param {Function} next - Middleware suivant
+   * @returns {Promise<void>} Envoie un message de confirmation en JSON
+   */
   async deleteMission(req, res, next) {
     const id = Number(req.params.id);
     const userId = req.user.id;
