@@ -1,52 +1,25 @@
-import ArgumentRequiredException from "../exceptions/argument.required.js";
-import DataNotFoundException from "../exceptions/data.not.found.js";
-import ForbiddenException from "../exceptions/forbidden.js";
-import DataAlreadyExistException from "../exceptions/data.already.exists.js";
+import DatabaseException from "../exceptions/database.exception.js";
 
 /**
  * @typedef {Object} Mission
  * @property {number} id - ID unique de la mission
  * @property {string} creator - Nom du créateur
  * @property {string} title - Titre de la mission
- * @property {string} descr - Description de la mission
+ * @property {string} descr - Description
  * @property {string} start_date - Date de début au format ISO (ex: 2025-09-15T07:00:00.000Z)
  * @property {string} end_date - Date de fin au format ISO (ex: 2025-09-20T07:00:00.000Z)
  * @property {string} status - Statut ("open" | "closed")
  */
 
 /**
- * @description Service de gestion des missions.
- * Contient la logique métier et les validations avant l'accès au repository.
+ * @description Repository des missions, fournit les méthodes d'accès à la base.
  */
-class MissionsService {
+class MissionsRepository {
   /**
-   * @param {Object} missionsRepository - Repository des missions
+   * @param {Object} pool - Instance de connexion MySQL (Pool)
    */
-  constructor(missionsRepository) {
-    this.missionsRepository = missionsRepository;
-  }
-
-  /**
-   * Vérifie si un titre de mission est déjà utilisé par un utilisateur.
-   * @param {Object} params
-   * @param {number} params.userId - ID de l'utilisateur
-   * @param {string} params.title - Titre de la mission
-   * @returns {Promise<Mission|null>} Mission trouvée ou null si inexistante
-   */
-  async checkMissionTitleUnique({ userId, title }) {
-    return await this.missionsRepository.checkMissionTitleUnique({
-      userId,
-      title,
-    });
-  }
-
-  /**
-   * Récupère une mission par son ID.
-   * @param {number} id - ID de la mission
-   * @returns {Promise<Mission|null>} Mission trouvée ou null si inexistante
-   */
-  async getMissionById(id) {
-    return await this.missionsRepository.getMissionById(id);
+  constructor(pool) {
+    this.pool = pool;
   }
 
   /**
@@ -58,105 +31,179 @@ class MissionsService {
    * @param {string} params.start_date - Date de début (ISO)
    * @param {string} params.end_date - Date de fin (ISO)
    * @returns {Promise<Mission>} Mission insérée et relue depuis la base
-   * @throws {ArgumentRequiredException|DataAlreadyExistException}
+   * @throws {DatabaseException}
    */
   async createMission({ userId, title, descr, start_date, end_date }) {
-    if (!userId || !title || !descr || !start_date || !end_date) {
-      throw new ArgumentRequiredException("Champs obligatoires manquants");
+    try {
+      const [result] = await this.pool.query(
+        `INSERT INTO missions(idUser, title, descr, start_date, end_date) VALUES (?, ?, ?, ?, ?)`,
+        [userId, title, descr, start_date, end_date]
+      );
+      const missionId = result.insertId;
+      const [rows] = await this.pool.query(
+        `SELECT m.id, u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
+         FROM missions m JOIN users u ON u.id = m.idUser WHERE m.id = ?`,
+        [missionId]
+      );
+      return rows[0];
+    } catch (err) {
+      throw new DatabaseException("Erreur lors de la création de la mission");
     }
-    const isTitleUnique = await this.checkMissionTitleUnique({
-      userId,
-      title,
-    });
-    if (isTitleUnique) {
-      throw new DataAlreadyExistException("Titre de mission déjà utilisé");
-    }
-    return await this.missionsRepository.createMission({
-      userId,
-      title,
-      descr,
-      start_date,
-      end_date,
-    });
   }
 
   /**
-   * Récupère les missions ouvertes d'un utilisateur.
-   * @param {number} userId - ID de l'utilisateur
-   * @returns {Promise<Mission[]>} Missions créées par l'utilisateur
-   * @throws {ArgumentRequiredException}
+   * Vérifie si une mission avec ce titre existe déjà pour l'utilisateur.
+   * @param {Object} params
+   * @param {number} params.userId - ID de l'utilisateur
+   * @param {string} params.title - Titre de la mission
+   * @returns {Promise<Mission|null>} Mission trouvée ou null
+   * @throws {DatabaseException}
    */
-  async getMissionByUserId(userId) {
-    if (!userId) {
-      throw new ArgumentRequiredException("Champ obligatoire manquant");
+  async checkMissionTitleUnique({ userId, title }) {
+    try {
+      const [rows] = await this.pool.query(
+        `SELECT * FROM missions WHERE idUser = ? AND title = ?`,
+        [userId, title]
+      );
+      return rows[0] || null;
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la récupération de la mission"
+      );
     }
-    return await this.missionsRepository.getMissionByUserId(userId);
+  }
+
+  /**
+   * Récupère une mission par son ID.
+   * @param {number} id - ID de la mission
+   * @returns {Promise<Mission|null>} Mission trouvée ou null
+   * @throws {DatabaseException}
+   */
+  async getMissionById(id) {
+    try {
+      const [rows] = await this.pool.query(
+        `SELECT * FROM missions WHERE id=?`,
+        [id]
+      );
+      return rows[0] || null;
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la récupération de la mission"
+      );
+    }
+  }
+
+  /**
+   * Récupère toutes les missions ouvertes.
+   * @returns {Promise<Mission[]>} Liste des missions
+   * @throws {DatabaseException}
+   */
+  async getAllMissions() {
+    try {
+      const [rows] = await this.pool.query(
+        `SELECT m.id, u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
+         FROM missions m JOIN users u ON u.id = m.idUser WHERE status = "open"`
+      );
+      return rows;
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la récupération de la mission"
+      );
+    }
   }
 
   /**
    * Récupère les missions fermées ("browsing") d'un utilisateur.
    * @param {number} userId - ID de l'utilisateur
-   * @returns {Promise<Mission[]>} Missions fermées de l'utilisateur
-   * @throws {ArgumentRequiredException}
+   * @returns {Promise<Mission[]>} Liste des missions fermées
+   * @throws {DatabaseException}
    */
   async getBrowsing(userId) {
-    if (!userId) {
-      throw new ArgumentRequiredException("Champ obligatoire manquant");
+    try {
+      const [rows] = await this.pool.query(
+        `SELECT m.id, u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
+         FROM missions m JOIN users u ON u.id = m.idUser WHERE m.idUser = ? AND status = "closed"`,
+        [userId]
+      );
+      return rows;
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la récupération de la mission"
+      );
     }
-    return await this.missionsRepository.getBrowsing(userId);
   }
 
   /**
-   * Récupère toutes les missions ouvertes.
-   * @returns {Promise<Mission[]>} Liste de missions ouvertes
+   * Récupère les missions ouvertes d'un utilisateur.
+   * @param {number} userId - ID de l'utilisateur
+   * @returns {Promise<Mission[]>} Liste des missions
+   * @throws {DatabaseException}
    */
-  async getAllMissions() {
-    return await this.missionsRepository.getAllMissions();
+  async getMissionByUserId(userId) {
+    try {
+      const [rows] = await this.pool.query(
+        `SELECT m.id, u.username AS creator, m.title, m.descr, m.start_date, m.end_date, m.status, COUNT(a.id) AS associations
+         FROM missions m 
+         JOIN users u ON u.id = m.idUser
+         LEFT JOIN applications a ON m.id = a.idMission
+         WHERE m.idUser = ? AND m.status = 'open'
+         GROUP BY m.id, u.username, m.title, m.descr, m.start_date, m.end_date, m.status;`,
+        [userId]
+      );
+      return rows;
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la récupération de la mission"
+      );
+    }
   }
 
   /**
    * Met à jour une mission.
-   * @param {number} id - ID de la mission
-   * @param {number} userId - ID de l'utilisateur
-   * @param {Object} update - Champs à modifier
+   * @param {Object} params
+   * @param {number} params.id - ID de la mission
+   * @param {Object} params.update - Champs à mettre à jour
    * @returns {Promise<Mission>} Mission mise à jour
-   * @throws {ArgumentRequiredException|DataNotFoundException|ForbiddenException}
+   * @throws {DatabaseException}
    */
-  async updateMission(id, userId, update) {
-    if (!id || !update || Object.keys(update).length === 0) {
-      throw new ArgumentRequiredException("Champ obligatoire manquant");
+  async updateMission({ id, update }) {
+    try {
+      const keys = Object.keys(update);
+      const values = Object.values(update);
+      const setKeys = keys.map((k) => `${k} = ?`).join(", ");
+      await this.pool.query(`UPDATE missions SET ${setKeys} WHERE id=?`, [
+        ...values,
+        id,
+      ]);
+      const [rows] = await this.pool.query(
+        `SELECT m.id, u.username AS creator, m.title, m.descr, m.start_date, m.end_date, status 
+         FROM missions m JOIN users u ON u.id = m.idUser WHERE m.id = ?`,
+        [id]
+      );
+      return rows[0];
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la mise à jour de la mission"
+      );
     }
-    const mission = await this.getMissionById(id);
-    if (!mission) {
-      throw new DataNotFoundException("Mission inexistante");
-    }
-    if (mission.idUser !== userId) {
-      throw new ForbiddenException("Accès interdit");
-    }
-    return await this.missionsRepository.updateMission({ id, update });
   }
 
   /**
    * Supprime une mission.
    * @param {number} id - ID de la mission
-   * @param {number} userId - ID de l'utilisateur
    * @returns {Promise<boolean>} true si la mission a été supprimée
-   * @throws {ArgumentRequiredException|DataNotFoundException|ForbiddenException}
+   * @throws {DatabaseException}
    */
-  async deleteMission(id, userId) {
-    if (!id || !userId) {
-      throw new ArgumentRequiredException("Champ obligatoire manquant");
+  async deleteMission(id) {
+    try {
+      await this.pool.query(`DELETE FROM missions WHERE id = ?`, [id]);
+      return true;
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la suppression de la mission"
+      );
     }
-    const mission = await this.getMissionById(id);
-    if (!mission) {
-      throw new DataNotFoundException("Mission inexistante");
-    }
-    if (mission.idUser !== userId) {
-      throw new ForbiddenException("Accès interdit");
-    }
-    await this.missionsRepository.deleteMission(id);
-    return true;
   }
 }
 
-export default MissionsService;
+export default MissionsRepository;
