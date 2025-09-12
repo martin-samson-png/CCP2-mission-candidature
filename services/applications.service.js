@@ -3,11 +3,35 @@ import DataNotFoundException from "../exceptions/data.not.found.js";
 import ForbiddenException from "../exceptions/forbidden.js";
 import DataAlreadyExistException from "../exceptions/data.already.exists.js";
 
+/**
+ * @typedef {Object} Application
+ * @property {number} id - ID unique de la candidature
+ * @property {number} idUser - ID de l'utilisateur qui a postulé
+ * @property {number} idMission - ID de la mission concernée
+ * @property {string} status - Statut de la candidature ("pending" | "accepted" | "rejected")
+ */
+
+/**
+ * @description Service de gestion des candidatures (applications).
+ * Contient la logique métier et les validations avant l'accès au repository.
+ */
 class ApplicationsService {
+  /**
+   * @param {Object} applicationsRepository - Repository des candidatures
+   * @param {Object} missionsService - Service de gestion des missions
+   */
   constructor(applicationsRepository, missionsService) {
     this.applicationsRepository = applicationsRepository;
     this.missionsService = missionsService;
   }
+
+  /**
+   * Vérifie si une candidature existe déjà pour un utilisateur et une mission.
+   * @param {Object} params
+   * @param {number} params.userId - ID de l'utilisateur
+   * @param {number} params.missionId - ID de la mission
+   * @returns {Promise<Application|null>} Candidature existante ou null
+   */
   async checkApplicationUnique({ userId, missionId }) {
     return await this.applicationsRepository.checkApplicationUnique({
       userId,
@@ -15,109 +39,136 @@ class ApplicationsService {
     });
   }
 
+  /**
+   * Vérifie si une mission existe.
+   * @param {number} missionId - ID de la mission
+   * @returns {Promise<Object|null>} Mission trouvée ou null
+   */
   async checkMissionExist(missionId) {
     return await this.missionsService.getMissionById(missionId);
   }
 
+  /**
+   * Crée une nouvelle candidature.
+   * @param {Object} params
+   * @param {number} params.userId - ID de l'utilisateur
+   * @param {number} params.missionId - ID de la mission
+   * @returns {Promise<Application>} Candidature créée
+   * @throws {ArgumentRequiredException|DataNotFoundException|ForbiddenException|DataAlreadyExistException}
+   */
   async createApplication({ userId, missionId }) {
     if (!userId || !missionId) {
       throw new ArgumentRequiredException("Champs obligatoires manquants");
     }
-    try {
-      const isMissionExist = await this.checkMissionExist(missionId);
-      if (!isMissionExist) {
-        throw new DataNotFoundException("Mission inexistante");
-      }
-      if (isMissionExist.status !== "open") {
-        throw new ForbiddenException("Mission indisponible");
-      }
-
-      const isApplicationExist = await this.checkApplicationUnique({
-        userId,
-        missionId,
-      });
-      if (isApplicationExist) {
-        throw new DataAlreadyExistException("Mission déjà ajoutée");
-      }
-
-      return await this.applicationsRepository.createApplication({
-        userId,
-        missionId,
-      });
-    } catch (err) {
-      throw err;
+    const isMissionExist = await this.checkMissionExist(missionId);
+    if (!isMissionExist) {
+      throw new DataNotFoundException("Mission inexistante");
     }
+    if (isMissionExist.status !== "open") {
+      throw new ForbiddenException("Mission indisponible");
+    }
+
+    const isApplicationExist = await this.checkApplicationUnique({
+      userId,
+      missionId,
+    });
+    if (isApplicationExist) {
+      throw new DataAlreadyExistException("Mission déjà ajoutée");
+    }
+
+    return await this.applicationsRepository.createApplication({
+      userId,
+      missionId,
+    });
   }
+
+  /**
+   * Récupère les missions auxquelles un volontaire a postulé.
+   * @param {number} volunteerId - ID du volontaire
+   * @returns {Promise<Application[]>} Liste des candidatures
+   * @throws {ArgumentRequiredException}
+   */
   async getMissionVolunteer(volunteerId) {
     if (!volunteerId) {
       throw new ArgumentRequiredException("Champs obligatoires manquants");
     }
-    try {
-      return this.applicationsRepository.getMissionVolunteer(volunteerId);
-    } catch (err) {
-      throw err;
-    }
+    return this.applicationsRepository.getMissionVolunteer(volunteerId);
   }
 
+  /**
+   * Récupère toutes les candidatures pour une mission.
+   * Accessible uniquement au créateur de la mission.
+   * @param {number} userId - ID de l'utilisateur propriétaire de la mission
+   * @param {number} missionId - ID de la mission
+   * @returns {Promise<Application[]>} Liste des candidatures
+   * @throws {ArgumentRequiredException|DataNotFoundException|ForbiddenException}
+   */
   async getApplicationByMission(userId, missionId) {
     if (!missionId) {
       throw new ArgumentRequiredException("Champs obligatoires manquants");
     }
-    try {
-      const mission = await this.checkMissionExist(missionId);
-      if (!mission) {
-        throw new DataNotFoundException("Mission inexistante");
-      }
-      if (mission.idUser !== userId) {
-        throw new ForbiddenException("Accès interdit");
-      }
-      return this.applicationsRepository.getApplicationByMission(missionId);
-    } catch (err) {
-      throw err;
+    const mission = await this.checkMissionExist(missionId);
+    if (!mission) {
+      throw new DataNotFoundException("Mission inexistante");
     }
+    if (mission.idUser !== userId) {
+      throw new ForbiddenException("Accès interdit");
+    }
+    return this.applicationsRepository.getApplicationByMission(missionId);
   }
+
+  /**
+   * Met à jour le statut d'une candidature.
+   * @param {Object} params
+   * @param {number} params.userId - ID du créateur de la mission
+   * @param {number} params.missionId - ID de la mission
+   * @param {number} params.volunteerId - ID du volontaire
+   * @param {string} params.status - Nouveau statut ("pending" | "accepted" | "rejected")
+   * @returns {Promise<Application>} Candidature mise à jour
+   * @throws {ArgumentRequiredException|DataNotFoundException|ForbiddenException}
+   */
   async updateStatus({ userId, missionId, volunteerId, status }) {
     if (!missionId || !status || !volunteerId) {
       throw new ArgumentRequiredException("Champs obligatoires manquants");
     }
-    try {
-      const mission = await this.checkMissionExist(missionId);
+    const mission = await this.checkMissionExist(missionId);
 
-      if (!mission) {
-        throw new DataNotFoundException("Mission inexistante");
-      }
-      if (mission.idUser !== userId) {
-        throw new ForbiddenException("Accès interdit");
-      }
-      return this.applicationsRepository.updateStatus({
-        missionId,
-        volunteerId,
-        status,
-      });
-    } catch (err) {
-      throw err;
+    if (!mission) {
+      throw new DataNotFoundException("Mission inexistante");
     }
+    if (mission.idUser !== userId) {
+      throw new ForbiddenException("Accès interdit");
+    }
+    return this.applicationsRepository.updateStatus({
+      missionId,
+      volunteerId,
+      status,
+    });
   }
 
+  /**
+   * Supprime une candidature.
+   * Accessible uniquement au propriétaire.
+   * @param {number} id - ID de la candidature
+   * @param {number} userId - ID de l'utilisateur
+   * @returns {Promise<Application>} true si la candidature supprimée
+   * @throws {ArgumentRequiredException|DataNotFoundException|ForbiddenException}
+   */
   async deleteApplication(id, userId) {
     if (!id || !userId) {
       throw new ArgumentRequiredException("Champs obligatoires manquants");
     }
-    try {
-      const application = await this.applicationsRepository.getApplicationById(
-        id
-      );
-      if (!application) {
-        throw new DataNotFoundException("Candidature inexistante");
-      }
-      if (application.idUser !== userId) {
-        throw new ForbiddenException("Accès interdit");
-      }
-      await this.applicationsRepository.deleteApplication(id);
-      return application;
-    } catch (err) {
-      throw err;
+    const application = await this.applicationsRepository.getApplicationById(
+      id
+    );
+    if (!application) {
+      throw new DataNotFoundException("Candidature inexistante");
     }
+    if (application.idUser !== userId) {
+      throw new ForbiddenException("Accès interdit");
+    }
+    await this.applicationsRepository.deleteApplication(id);
+    return true;
   }
 }
 
