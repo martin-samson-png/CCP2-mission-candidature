@@ -1,15 +1,23 @@
+import DatabaseException from "../exceptions/database.exception.js";
+
 class ApplicationsRepository {
   constructor(pool) {
     this.pool = pool;
   }
   async checkApplicationUnique({ userId, missionId }) {
-    const [rows] = await this.pool.query(
-      `SELECT a.id, a.idUser, a.idUser, a.idMission, a.status, m.status FROM applications a 
+    try {
+      const [rows] = await this.pool.query(
+        `SELECT a.id, a.idUser, a.idUser, a.idMission, a.status, m.status FROM applications a 
        JOIN missions m ON m.id = a.idMission WHERE a.idUser = ? AND a.idMission = ?
       `,
-      [userId, missionId]
-    );
-    return rows[0] || null;
+        [userId, missionId]
+      );
+      return rows[0] || null;
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la récupération de la candidature"
+      );
+    }
   }
 
   async createApplication({ userId, missionId }) {
@@ -24,7 +32,7 @@ class ApplicationsRepository {
 
       const [rows] = await this.pool.query(
         `
-      SELECT a.id, a.idUser, u.username AS volunteer, m.title, m.descr, m.start_date, m.end-date, asso.username AS association
+      SELECT a.id, a.idUser, u.username AS volunteer, m.title, m.descr, m.start_date, m.end_date, asso.username AS association
       FROM applications a JOIN missions m ON a.idMission = m.id
       JOIN users u ON a.idUser = u.id
       JOIN users asso ON m.idUser = asso.id
@@ -33,8 +41,10 @@ class ApplicationsRepository {
         [applicationId]
       );
       return rows[0];
-    } catch (error) {
-      throw new Error("Erreur lors de la création de la candidature");
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la création de la candidature"
+      );
     }
   }
 
@@ -42,17 +52,19 @@ class ApplicationsRepository {
     try {
       const [rows] = await this.pool.query(
         `
-      SELECT a.id, m.title, m.descr, m.start_date, m.end_date, asso.idUser, asso.username AS association, COUNT(a.idUser) AS applications
+      SELECT a.id, m.title, m.descr, m.start_date, m.end_date, asso.id, asso.username AS association, COUNT(a.idUser) AS applications
       FROM applications a JOIN missions m ON a.idMission = m.id
       JOIN users u ON a.idUser = u.id
       JOIN users asso ON m.idUser = asso.id
-      WHERE a.idUser = ?
+      WHERE a.idUser = ? GROUP BY a.id
       `,
         [volunteerId]
       );
       return rows;
     } catch (err) {
-      throw new Error("Erreur lors de la récuperation des données");
+      throw new DatabaseException(
+        "Erreur lors de la récupération de la candidature"
+      );
     }
   }
 
@@ -69,16 +81,24 @@ class ApplicationsRepository {
       );
       return rows;
     } catch (err) {
-      throw new Error("Erreur lors de la récuperation des données");
+      throw new DatabaseException(
+        "Erreur lors de la récupération de la candidature"
+      );
     }
   }
 
   async getApplicationById(id) {
-    const [rows] = await this.pool.query(
-      `SELECT * FROM applications WHERE id=?`,
-      [id]
-    );
-    return rows[0] || null;
+    try {
+      const [rows] = await this.pool.query(
+        `SELECT * FROM applications WHERE id=?`,
+        [id]
+      );
+      return rows[0] || null;
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la récupération de la candidature"
+      );
+    }
   }
 
   async updateStatus({ missionId, volunteerId, status }) {
@@ -94,19 +114,21 @@ class ApplicationsRepository {
       SELECT a.id, a.status,u.username, 
       m.title AS title
       FROM applications a JOIN users u ON u.id = a.idUser
-      JOIN missions m ON m.id = a.idMission WHERE a.idMission = ? AND a.idUser =?
+      JOIN missions m ON m.id = a.idMission WHERE a.idMission = ? AND a.idUser = ?
     `,
         [missionId, volunteerId]
       );
       return rows;
     } catch (err) {
-      throw new Error("Erreur lors de la récuperation des données");
+      throw new DatabaseException(
+        "Erreur lors de la mise à jour du status de la candidature"
+      );
     }
   }
 
   async deleteApplication(id) {
     try {
-      const [result] = await this.pool.query(
+      await this.pool.query(
         `
         DELETE FROM applications WHERE id = ?
         `,
@@ -114,7 +136,9 @@ class ApplicationsRepository {
       );
       return true;
     } catch (err) {
-      throw new Error("Erreur lors de la suppression de la candiature");
+      throw new DatabaseException(
+        "Erreur lors de la suppression de la candidature"
+      );
     }
   }
 }

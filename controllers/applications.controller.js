@@ -3,7 +3,7 @@ class ApplicationsController {
     this.applicationsService = applicationsService;
   }
 
-  async createApplication(req, res) {
+  async createApplication(req, res, next) {
     const missionId = req.params.id;
     const userId = req.user.id;
     try {
@@ -14,10 +14,10 @@ class ApplicationsController {
       res.status(201).json(newApplication);
     } catch (err) {
       console.error(err.message);
-      res.status(500).json({ message: err.message });
+      next(err);
     }
   }
-  async getMissionVolunteer(req, res) {
+  async getMissionVolunteer(req, res, next) {
     const volunteerId = req.user.id;
     try {
       const applications = await this.applicationsService.getMissionVolunteer(
@@ -25,11 +25,12 @@ class ApplicationsController {
       );
       res.status(200).json(applications);
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      console.error(err.message);
+      next(err);
     }
   }
 
-  async getApplicationByMission(req, res) {
+  async getApplicationByMission(req, res, next) {
     const missionId = Number(req.params.id);
     const userId = req.user.id;
     try {
@@ -40,11 +41,12 @@ class ApplicationsController {
         );
       res.status(200).json(applications);
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      console.error(err.message);
+      next(err);
     }
   }
 
-  async updateStatus(req, res) {
+  async updateStatus(req, res, next) {
     const missionId = Number(req.params.id);
     const userId = req.user.id;
     const { volunteerId, status } = req.body;
@@ -58,19 +60,21 @@ class ApplicationsController {
       });
       res.status(200).json(applications);
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      console.error(err.message);
+      next(err);
     }
   }
-  async deleteApplication(req, res) {
+  async deleteApplication(req, res, next) {
     const id = Number(req.params.id);
     const userId = req.user.id;
+    console.log(id, userId);
+
     try {
       await this.applicationsService.deleteApplication(id, userId);
       res.status(200).json({ message: "Candidature supprimée" });
     } catch (err) {
       console.error(err.message);
-
-      res.status(500).json(err.message);
+      next(err);
     }
   }
 }
