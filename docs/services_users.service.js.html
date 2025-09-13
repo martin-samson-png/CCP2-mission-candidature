@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: services/users.service.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: services/users.service.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import argon2 from "argon2";
+import jwt from "jsonwebtoken";
+import cleanUser from "../cleanUser.js";
+import ArgumentRequiredException from "../exceptions/argument.required.js";
+import IncorrectDataException from "../exceptions/incorrect.data.js";
+import DataAlreadyExistException from "../exceptions/data.already.exists.js";
+
+/**
+ * @typedef {Object} User
+ * @property {number} id - ID unique de l'utilisateur
+ * @property {string} username - Nom d'utilisateur
+ * @property {string} email - Email
+ * @property {string} password - Mot de passe hashé
+ * @property {string} role - Rôle de l'utilisateur ("admin" | "user" | "volunteer")
+ */
+
+/**
+ * @description Service de gestion des utilisateurs.
+ * Contient la logique métier liée à l'authentification et l'enregistrement.
+ */
+class UsersService {
+  /**
+   * @param {Object} usersRepository - Repository des utilisateurs
+   */
+  constructor(usersRepository) {
+    this.usersRepository = usersRepository;
+  }
+
+  /**
+   * Récupère un utilisateur par son email.
+   * @param {string} email - Email de l'utilisateur
+   * @returns {Promise&lt;User|null>} Utilisateur trouvé ou null
+   */
+  async getUserByEmail(email) {
+    return await this.usersRepository.getUserByEmail(email);
+  }
+
+  /**
+   * Récupère un utilisateur par son ID.
+   * @param {number} id - ID de l'utilisateur
+   * @returns {Promise&lt;User|null>} Utilisateur trouvé ou null
+   * @throws {ArgumentRequiredException}
+   */
+  async getUserById(id) {
+    if (!id) {
+      throw new ArgumentRequiredException("Champ obligatoire manquant");
+    }
+    return await this.usersRepository.getUserById(id);
+  }
+
+  /**
+   * Enregistre un nouvel utilisateur (hash du mot de passe).
+   * @param {Object} params
+   * @param {string} params.username - Nom d'utilisateur
+   * @param {string} params.email - Email
+   * @param {string} params.password - Mot de passe en clair
+   * @param {string} params.role - Rôle ("admin" | "user" | "volunteer")
+   * @returns {Promise&lt;User>} Utilisateur enregistré
+   * @throws {ArgumentRequiredException|DataAlreadyExistException}
+   */
+  async register({ username, email, password, role }) {
+    if (!username || !email || !password || !role) {
+      throw new ArgumentRequiredException("Champs obligatoires manquants");
+    }
+    const isEmailExist = await this.getUserByEmail(email);
+    if (isEmailExist) {
+      throw new DataAlreadyExistException("Utilisateur existant");
+    }
+    const hashedPassword = await argon2.hash(password, {
+      type: argon2.argon2id,
+    });
+    return await this.usersRepository.register({
+      username,
+      email,
+      password: hashedPassword,
+      role,
+    });
+  }
+
+  /**
+   * Authentifie un utilisateur et renvoie un token JWT.
+   * @param {Object} params
+   * @param {string} params.email - Email de l'utilisateur
+   * @param {string} params.password - Mot de passe en clair
+   * @returns {Promise&lt;{token: string, user: User}>} Token JWT et utilisateur nettoyé
+   * @throws {ArgumentRequiredException|IncorrectDataException}
+   */
+  async login({ email, password }) {
+    if (!email || !password) {
+      throw new ArgumentRequiredException("Champs obligatoires manquants");
+    }
+    const user = await this.getUserByEmail(email);
+    if (!user) {
+      throw new IncorrectDataException("Identifiants incorrects");
+    }
+
+    const verifyPassword = await argon2.verify(user.password, password);
+    if (!verifyPassword) {
+      throw new IncorrectDataException("Identifiants incorrects");
+    }
+
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    return {
+      token,
+      user: cleanUser(user),
+    };
+  }
+}
+
+export default UsersService;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ApplicationsController.html">ApplicationsController</a></li><li><a href="ApplicationsRepository.html">ApplicationsRepository</a></li><li><a href="ApplicationsService.html">ApplicationsService</a></li><li><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></li><li><a href="DataAlreadyExistException.html">DataAlreadyExistException</a></li><li><a href="DataNotFoundException.html">DataNotFoundException</a></li><li><a href="DatabaseException.html">DatabaseException</a></li><li><a href="ForbiddenException.html">ForbiddenException</a></li><li><a href="IncorrectDataException.html">IncorrectDataException</a></li><li><a href="MissionsController.html">MissionsController</a></li><li><a href="MissionsRepository.html">MissionsRepository</a></li><li><a href="MissionsService.html">MissionsService</a></li><li><a href="UnauthorizedException.html">UnauthorizedException</a></li><li><a href="UserRepository.html">UserRepository</a></li><li><a href="UsersController.html">UsersController</a></li><li><a href="UsersService.html">UsersService</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildContainer">buildContainer</a></li><li><a href="global.html#checkAuth">checkAuth</a></li><li><a href="global.html#checkRole">checkRole</a></li><li><a href="global.html#cleanUser">cleanUser</a></li><li><a href="global.html#errorHandler">errorHandler</a></li><li><a href="global.html#getPool">getPool</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Sep 12 2025 17:19:02 GMT+0200 (heure d’été d’Europe centrale)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

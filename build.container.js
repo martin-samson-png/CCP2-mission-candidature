@@ -9,18 +9,30 @@ import UsersController from "./controllers/users.controller.js";
 import MissionsController from "./controllers/missions.controller.js";
 import ApplicationsController from "./controllers/applications.controller.js";
 
+/**
+ * @description Construit et assemble toutes les dépendances de l'application :
+ * pool de base de données, repositories, services et controllers.
+ *
+ * @returns {Object} Conteneur avec les controllers instanciés
+ *
+ * @example
+ * const container = buildContainer();
+ * const usersController = container.usersController;
+ */
 const buildContainer = () => {
   const pool = getPool();
 
   const usersRepository = new UsersRepository(pool);
   const missionsRepository = new MissionsRepository(pool);
   const applicationsRepository = new ApplicationsRepository(pool);
+
   const usersService = new UsersService(usersRepository);
   const missionsService = new MissionsService(missionsRepository);
   const applicationsService = new ApplicationsService(
     applicationsRepository,
     missionsService
   );
+
   const usersController = new UsersController(usersService);
   const missionsController = new MissionsController(missionsService);
   const applicationsController = new ApplicationsController(

@@ -5,15 +5,42 @@ import ArgumentRequiredException from "../exceptions/argument.required.js";
 import IncorrectDataException from "../exceptions/incorrect.data.js";
 import DataAlreadyExistException from "../exceptions/data.already.exists.js";
 
+/**
+ * @typedef {Object} User
+ * @property {number} id - ID unique de l'utilisateur
+ * @property {string} username - Nom d'utilisateur
+ * @property {string} email - Email
+ * @property {string} password - Mot de passe hashé
+ * @property {string} role - Rôle de l'utilisateur ("admin" | "user" | "volunteer")
+ */
+
+/**
+ * @description Service de gestion des utilisateurs.
+ * Contient la logique métier liée à l'authentification et l'enregistrement.
+ */
 class UsersService {
+  /**
+   * @param {Object} usersRepository - Repository des utilisateurs
+   */
   constructor(usersRepository) {
     this.usersRepository = usersRepository;
   }
 
+  /**
+   * Récupère un utilisateur par son email.
+   * @param {string} email - Email de l'utilisateur
+   * @returns {Promise<User|null>} Utilisateur trouvé ou null
+   */
   async getUserByEmail(email) {
     return await this.usersRepository.getUserByEmail(email);
   }
 
+  /**
+   * Récupère un utilisateur par son ID.
+   * @param {number} id - ID de l'utilisateur
+   * @returns {Promise<User|null>} Utilisateur trouvé ou null
+   * @throws {ArgumentRequiredException}
+   */
   async getUserById(id) {
     if (!id) {
       throw new ArgumentRequiredException("Champ obligatoire manquant");
@@ -21,6 +48,16 @@ class UsersService {
     return await this.usersRepository.getUserById(id);
   }
 
+  /**
+   * Enregistre un nouvel utilisateur (hash du mot de passe).
+   * @param {Object} params
+   * @param {string} params.username - Nom d'utilisateur
+   * @param {string} params.email - Email
+   * @param {string} params.password - Mot de passe en clair
+   * @param {string} params.role - Rôle ("admin" | "user" | "volunteer")
+   * @returns {Promise<User>} Utilisateur enregistré
+   * @throws {ArgumentRequiredException|DataAlreadyExistException}
+   */
   async register({ username, email, password, role }) {
     if (!username || !email || !password || !role) {
       throw new ArgumentRequiredException("Champs obligatoires manquants");
@@ -40,6 +77,14 @@ class UsersService {
     });
   }
 
+  /**
+   * Authentifie un utilisateur et renvoie un token JWT.
+   * @param {Object} params
+   * @param {string} params.email - Email de l'utilisateur
+   * @param {string} params.password - Mot de passe en clair
+   * @returns {Promise<{token: string, user: User}>} Token JWT et utilisateur nettoyé
+   * @throws {ArgumentRequiredException|IncorrectDataException}
+   */
   async login({ email, password }) {
     if (!email || !password) {
       throw new ArgumentRequiredException("Champs obligatoires manquants");

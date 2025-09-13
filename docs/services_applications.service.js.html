@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: services/applications.service.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: services/applications.service.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import ArgumentRequiredException from "../exceptions/argument.required.js";
+import DataNotFoundException from "../exceptions/data.not.found.js";
+import ForbiddenException from "../exceptions/forbidden.js";
+import DataAlreadyExistException from "../exceptions/data.already.exists.js";
+
+/**
+ * @typedef {Object} Application
+ * @property {number} id - ID unique de la candidature
+ * @property {number} idUser - ID de l'utilisateur qui a postulé
+ * @property {number} idMission - ID de la mission concernée
+ * @property {string} status - Statut de la candidature ("pending" | "accepted" | "rejected")
+ */
+
+/**
+ * @description Service de gestion des candidatures (applications).
+ * Contient la logique métier et les validations avant l'accès au repository.
+ */
+class ApplicationsService {
+  /**
+   * @param {Object} applicationsRepository - Repository des candidatures
+   * @param {Object} missionsService - Service de gestion des missions
+   */
+  constructor(applicationsRepository, missionsService) {
+    this.applicationsRepository = applicationsRepository;
+    this.missionsService = missionsService;
+  }
+
+  /**
+   * Vérifie si une candidature existe déjà pour un utilisateur et une mission.
+   * @param {Object} params
+   * @param {number} params.userId - ID de l'utilisateur
+   * @param {number} params.missionId - ID de la mission
+   * @returns {Promise&lt;Application|null>} Candidature existante ou null
+   */
+  async checkApplicationUnique({ userId, missionId }) {
+    return await this.applicationsRepository.checkApplicationUnique({
+      userId,
+      missionId,
+    });
+  }
+
+  /**
+   * Vérifie si une mission existe.
+   * @param {number} missionId - ID de la mission
+   * @returns {Promise&lt;Object|null>} Mission trouvée ou null
+   */
+  async checkMissionExist(missionId) {
+    return await this.missionsService.getMissionById(missionId);
+  }
+
+  /**
+   * Crée une nouvelle candidature.
+   * @param {Object} params
+   * @param {number} params.userId - ID de l'utilisateur
+   * @param {number} params.missionId - ID de la mission
+   * @returns {Promise&lt;Application>} Candidature créée
+   * @throws {ArgumentRequiredException|DataNotFoundException|ForbiddenException|DataAlreadyExistException}
+   */
+  async createApplication({ userId, missionId }) {
+    if (!userId || !missionId) {
+      throw new ArgumentRequiredException("Champs obligatoires manquants");
+    }
+    const isMissionExist = await this.checkMissionExist(missionId);
+    if (!isMissionExist) {
+      throw new DataNotFoundException("Mission inexistante");
+    }
+    if (isMissionExist.status !== "open") {
+      throw new ForbiddenException("Mission indisponible");
+    }
+
+    const isApplicationExist = await this.checkApplicationUnique({
+      userId,
+      missionId,
+    });
+    if (isApplicationExist) {
+      throw new DataAlreadyExistException("Mission déjà ajoutée");
+    }
+
+    return await this.applicationsRepository.createApplication({
+      userId,
+      missionId,
+    });
+  }
+
+  /**
+   * Récupère les missions auxquelles un volontaire a postulé.
+   * @param {number} volunteerId - ID du volontaire
+   * @returns {Promise&lt;Application[]>} Liste des candidatures
+   * @throws {ArgumentRequiredException}
+   */
+  async getMissionVolunteer(volunteerId) {
+    if (!volunteerId) {
+      throw new ArgumentRequiredException("Champs obligatoires manquants");
+    }
+    return this.applicationsRepository.getMissionVolunteer(volunteerId);
+  }
+
+  /**
+   * Récupère toutes les candidatures pour une mission.
+   * Accessible uniquement au créateur de la mission.
+   * @param {number} userId - ID de l'utilisateur propriétaire de la mission
+   * @param {number} missionId - ID de la mission
+   * @returns {Promise&lt;Application[]>} Liste des candidatures
+   * @throws {ArgumentRequiredException|DataNotFoundException|ForbiddenException}
+   */
+  async getApplicationByMission(userId, missionId) {
+    if (!missionId) {
+      throw new ArgumentRequiredException("Champs obligatoires manquants");
+    }
+    const mission = await this.checkMissionExist(missionId);
+    if (!mission) {
+      throw new DataNotFoundException("Mission inexistante");
+    }
+    if (mission.idUser !== userId) {
+      throw new ForbiddenException("Accès interdit");
+    }
+    return this.applicationsRepository.getApplicationByMission(missionId);
+  }
+
+  /**
+   * Met à jour le statut d'une candidature.
+   * @param {Object} params
+   * @param {number} params.userId - ID du créateur de la mission
+   * @param {number} params.missionId - ID de la mission
+   * @param {number} params.volunteerId - ID du volontaire
+   * @param {string} params.status - Nouveau statut ("pending" | "accepted" | "rejected")
+   * @returns {Promise&lt;Application>} Candidature mise à jour
+   * @throws {ArgumentRequiredException|DataNotFoundException|ForbiddenException}
+   */
+  async updateStatus({ userId, missionId, volunteerId, status }) {
+    if (!missionId || !status || !volunteerId) {
+      throw new ArgumentRequiredException("Champs obligatoires manquants");
+    }
+    const mission = await this.checkMissionExist(missionId);
+
+    if (!mission) {
+      throw new DataNotFoundException("Mission inexistante");
+    }
+    if (mission.idUser !== userId) {
+      throw new ForbiddenException("Accès interdit");
+    }
+    return this.applicationsRepository.updateStatus({
+      missionId,
+      volunteerId,
+      status,
+    });
+  }
+
+  /**
+   * Supprime une candidature.
+   * Accessible uniquement au propriétaire.
+   * @param {number} id - ID de la candidature
+   * @param {number} userId - ID de l'utilisateur
+   * @returns {Promise&lt;Application>} true si la candidature supprimée
+   * @throws {ArgumentRequiredException|DataNotFoundException|ForbiddenException}
+   */
+  async deleteApplication(id, userId) {
+    if (!id || !userId) {
+      throw new ArgumentRequiredException("Champs obligatoires manquants");
+    }
+    const application = await this.applicationsRepository.getApplicationById(
+      id
+    );
+    if (!application) {
+      throw new DataNotFoundException("Candidature inexistante");
+    }
+    if (application.idUser !== userId) {
+      throw new ForbiddenException("Accès interdit");
+    }
+    await this.applicationsRepository.deleteApplication(id);
+    return true;
+  }
+}
+
+export default ApplicationsService;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ApplicationsController.html">ApplicationsController</a></li><li><a href="ApplicationsRepository.html">ApplicationsRepository</a></li><li><a href="ApplicationsService.html">ApplicationsService</a></li><li><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></li><li><a href="DataAlreadyExistException.html">DataAlreadyExistException</a></li><li><a href="DataNotFoundException.html">DataNotFoundException</a></li><li><a href="DatabaseException.html">DatabaseException</a></li><li><a href="ForbiddenException.html">ForbiddenException</a></li><li><a href="IncorrectDataException.html">IncorrectDataException</a></li><li><a href="MissionsController.html">MissionsController</a></li><li><a href="MissionsRepository.html">MissionsRepository</a></li><li><a href="MissionsService.html">MissionsService</a></li><li><a href="UnauthorizedException.html">UnauthorizedException</a></li><li><a href="UserRepository.html">UserRepository</a></li><li><a href="UsersController.html">UsersController</a></li><li><a href="UsersService.html">UsersService</a></li></ul><h3>Global</h3><ul><li><a href="global.html#buildContainer">buildContainer</a></li><li><a href="global.html#checkAuth">checkAuth</a></li><li><a href="global.html#checkRole">checkRole</a></li><li><a href="global.html#cleanUser">cleanUser</a></li><li><a href="global.html#errorHandler">errorHandler</a></li><li><a href="global.html#getPool">getPool</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Sep 12 2025 17:19:02 GMT+0200 (heure d’été d’Europe centrale)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
