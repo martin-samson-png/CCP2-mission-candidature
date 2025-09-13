@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: ApplicationsService</title>
+    <title>JSDoc: Class: ApplicationsRepository</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: ApplicationsService</h1>
+    <h1 class="page-title">Class: ApplicationsRepository</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>ApplicationsService<span class="signature">(applicationsRepository, missionsService)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>ApplicationsRepository<span class="signature">(pool)</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -41,7 +41,7 @@
     
 
     
-    <h4 class="name" id="ApplicationsService"><span class="type-signature"></span>new ApplicationsService<span class="signature">(applicationsRepository, missionsService)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="ApplicationsRepository"><span class="type-signature"></span>new ApplicationsRepository<span class="signature">(pool)</span><span class="type-signature"></span></h4>
     
 
     
@@ -49,7 +49,7 @@
 
 
 <div class="description">
-    Service de gestion des candidatures (applications).Contient la logique métier et les validations avant l'accès au repository.
+    Repository des candidatures, fournit les méthodes d'accès à la base.
 </div>
 
 
@@ -85,7 +85,7 @@
 
         <tr>
             
-                <td class="name"><code>applicationsRepository</code></td>
+                <td class="name"><code>pool</code></td>
             
 
             <td class="type">
@@ -101,30 +101,7 @@
 
             
 
-            <td class="description last">Repository des candidatures</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>missionsService</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Service de gestion des missions</td>
+            <td class="description last">Instance de connexion MySQL (Pool)</td>
         </tr>
 
     
@@ -165,7 +142,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_applications.service.js.html">services/applications.service.js</a>, <a href="services_applications.service.js.html#line18">line 18</a>
+        <a href="repository_applications.repository.js.html">repository/applications.repository.js</a>, <a href="repository_applications.repository.js.html#line14">line 14</a>
     </li></ul></dd>
     
 
@@ -394,7 +371,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_applications.service.js.html">services/applications.service.js</a>, <a href="services_applications.service.js.html#line35">line 35</a>
+        <a href="repository_applications.repository.js.html">repository/applications.repository.js</a>, <a href="repository_applications.repository.js.html#line30">line 30</a>
     </li></ul></dd>
     
 
@@ -417,13 +394,28 @@
 
 
 
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        
+<span class="param-type"><a href="DatabaseException.html">DatabaseException</a></span>
+
+
+    
+    </div>
+
+
+    
 
 
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Candidature existante ou null
+    Candidature trouvée ou null
 </div>
 
 
@@ -435,165 +427,6 @@
     <dd>
         
 <span class="param-type">Promise.&lt;(<a href="global.html#Application">Application</a>|null)></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="checkMissionExist"><span class="type-signature">(async) </span>checkMissionExist<span class="signature">(missionId)</span><span class="type-signature"> &rarr; {Promise.&lt;(Object|null)>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Vérifie si une mission existe.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>missionId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">ID de la mission</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_applications.service.js.html">services/applications.service.js</a>, <a href="services_applications.service.js.html#line47">line 47</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    Mission trouvée ou null
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;(Object|null)></span>
 
 
     </dd>
@@ -784,7 +617,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_applications.service.js.html">services/applications.service.js</a>, <a href="services_applications.service.js.html#line59">line 59</a>
+        <a href="repository_applications.repository.js.html">repository/applications.repository.js</a>, <a href="repository_applications.repository.js.html#line55">line 55</a>
     </li></ul></dd>
     
 
@@ -814,16 +647,7 @@
     <div class="param-desc">
     
         
-<span class="param-type"><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></span>
-|
-
-<span class="param-type"><a href="DataNotFoundException.html">DataNotFoundException</a></span>
-|
-
-<span class="param-type"><a href="ForbiddenException.html">ForbiddenException</a></span>
-|
-
-<span class="param-type"><a href="DataAlreadyExistException.html">DataAlreadyExistException</a></span>
+<span class="param-type"><a href="DatabaseException.html">DatabaseException</a></span>
 
 
     
@@ -866,7 +690,7 @@
     
 
     
-    <h4 class="name" id="deleteApplication"><span class="type-signature">(async) </span>deleteApplication<span class="signature">(id, userId)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="global.html#Application">Application</a>>}</span></h4>
+    <h4 class="name" id="deleteApplication"><span class="type-signature">(async) </span>deleteApplication<span class="signature">(id)</span><span class="type-signature"> &rarr; {Promise.&lt;boolean>}</span></h4>
     
 
     
@@ -874,7 +698,7 @@
 
 
 <div class="description">
-    Supprime une candidature.Accessible uniquement au propriétaire.
+    Supprime une candidature.
 </div>
 
 
@@ -930,10 +754,161 @@
         </tr>
 
     
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="repository_applications.repository.js.html">repository/applications.repository.js</a>, <a href="repository_applications.repository.js.html#line187">line 187</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        
+<span class="param-type"><a href="DatabaseException.html">DatabaseException</a></span>
+
+
+    
+    </div>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    true si la candidature a été supprimée
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;boolean></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getApplicationById"><span class="type-signature">(async) </span>getApplicationById<span class="signature">(id)</span><span class="type-signature"> &rarr; {Promise.&lt;(<a href="global.html#Application">Application</a>|null)>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Récupère une candidature par son ID.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
 
         <tr>
             
-                <td class="name"><code>userId</code></td>
+                <td class="name"><code>id</code></td>
             
 
             <td class="type">
@@ -949,7 +924,7 @@
 
             
 
-            <td class="description last">ID de l'utilisateur</td>
+            <td class="description last">ID de la candidature</td>
         </tr>
 
     
@@ -990,7 +965,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_applications.service.js.html">services/applications.service.js</a>, <a href="services_applications.service.js.html#line157">line 157</a>
+        <a href="repository_applications.repository.js.html">repository/applications.repository.js</a>, <a href="repository_applications.repository.js.html#line136">line 136</a>
     </li></ul></dd>
     
 
@@ -1020,13 +995,7 @@
     <div class="param-desc">
     
         
-<span class="param-type"><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></span>
-|
-
-<span class="param-type"><a href="DataNotFoundException.html">DataNotFoundException</a></span>
-|
-
-<span class="param-type"><a href="ForbiddenException.html">ForbiddenException</a></span>
+<span class="param-type"><a href="DatabaseException.html">DatabaseException</a></span>
 
 
     
@@ -1040,7 +1009,7 @@
 
         
 <div class="param-desc">
-    true si la candidature supprimée
+    Candidature trouvée ou null
 </div>
 
 
@@ -1051,7 +1020,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;<a href="global.html#Application">Application</a>></span>
+<span class="param-type">Promise.&lt;(<a href="global.html#Application">Application</a>|null)></span>
 
 
     </dd>
@@ -1069,7 +1038,7 @@
     
 
     
-    <h4 class="name" id="getApplicationByMission"><span class="type-signature">(async) </span>getApplicationByMission<span class="signature">(userId, missionId)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="global.html#Application">Application</a>>>}</span></h4>
+    <h4 class="name" id="getApplicationByMission"><span class="type-signature">(async) </span>getApplicationByMission<span class="signature">(missionId)</span><span class="type-signature"> &rarr; {Promise.&lt;Array.&lt;<a href="global.html#Application">Application</a>>>}</span></h4>
     
 
     
@@ -1077,7 +1046,7 @@
 
 
 <div class="description">
-    Récupère toutes les candidatures pour une mission.Accessible uniquement au créateur de la mission.
+    Récupère toutes les candidatures pour une mission.
 </div>
 
 
@@ -1109,29 +1078,6 @@
     </thead>
 
     <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>userId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">ID de l'utilisateur propriétaire de la mission</td>
-        </tr>
-
     
 
         <tr>
@@ -1193,7 +1139,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_applications.service.js.html">services/applications.service.js</a>, <a href="services_applications.service.js.html#line106">line 106</a>
+        <a href="repository_applications.repository.js.html">repository/applications.repository.js</a>, <a href="repository_applications.repository.js.html#line112">line 112</a>
     </li></ul></dd>
     
 
@@ -1223,13 +1169,7 @@
     <div class="param-desc">
     
         
-<span class="param-type"><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></span>
-|
-
-<span class="param-type"><a href="DataNotFoundException.html">DataNotFoundException</a></span>
-|
-
-<span class="param-type"><a href="ForbiddenException.html">ForbiddenException</a></span>
+<span class="param-type"><a href="DatabaseException.html">DatabaseException</a></span>
 
 
     
@@ -1373,7 +1313,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_applications.service.js.html">services/applications.service.js</a>, <a href="services_applications.service.js.html#line91">line 91</a>
+        <a href="repository_applications.repository.js.html">repository/applications.repository.js</a>, <a href="repository_applications.repository.js.html#line86">line 86</a>
     </li></ul></dd>
     
 
@@ -1403,7 +1343,7 @@
     <div class="param-desc">
     
         
-<span class="param-type"><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></span>
+<span class="param-type"><a href="DatabaseException.html">DatabaseException</a></span>
 
 
     
@@ -1532,29 +1472,6 @@
 
         <tr>
             
-                <td class="name"><code>userId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">ID du créateur de la mission</td>
-        </tr>
-
-    
-
-        <tr>
-            
                 <td class="name"><code>missionId</code></td>
             
 
@@ -1665,7 +1582,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_applications.service.js.html">services/applications.service.js</a>, <a href="services_applications.service.js.html#line130">line 130</a>
+        <a href="repository_applications.repository.js.html">repository/applications.repository.js</a>, <a href="repository_applications.repository.js.html#line159">line 159</a>
     </li></ul></dd>
     
 
@@ -1695,13 +1612,7 @@
     <div class="param-desc">
     
         
-<span class="param-type"><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></span>
-|
-
-<span class="param-type"><a href="DataNotFoundException.html">DataNotFoundException</a></span>
-|
-
-<span class="param-type"><a href="ForbiddenException.html">ForbiddenException</a></span>
+<span class="param-type"><a href="DatabaseException.html">DatabaseException</a></span>
 
 
     

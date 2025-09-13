@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: UsersService</title>
+    <title>JSDoc: Class: UserRepository</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: UsersService</h1>
+    <h1 class="page-title">Class: UserRepository</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>UsersService<span class="signature">(usersRepository)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>UserRepository<span class="signature">(pool)</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -41,7 +41,7 @@
     
 
     
-    <h4 class="name" id="UsersService"><span class="type-signature"></span>new UsersService<span class="signature">(usersRepository)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="UserRepository"><span class="type-signature"></span>new UserRepository<span class="signature">(pool)</span><span class="type-signature"></span></h4>
     
 
     
@@ -49,7 +49,7 @@
 
 
 <div class="description">
-    Service de gestion des utilisateurs.Contient la logique métier liée à l'authentification et l'enregistrement.
+    Repository des utilisateurs, fournit les méthodes d'accès à la base.
 </div>
 
 
@@ -85,7 +85,7 @@
 
         <tr>
             
-                <td class="name"><code>usersRepository</code></td>
+                <td class="name"><code>pool</code></td>
             
 
             <td class="type">
@@ -101,7 +101,7 @@
 
             
 
-            <td class="description last">Repository des utilisateurs</td>
+            <td class="description last">Instance de connexion MySQL (Pool)</td>
         </tr>
 
     
@@ -142,7 +142,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_users.service.js.html">services/users.service.js</a>, <a href="services_users.service.js.html#line21">line 21</a>
+        <a href="repository_users.repository.js.html">repository/users.repository.js</a>, <a href="repository_users.repository.js.html#line15">line 15</a>
     </li></ul></dd>
     
 
@@ -299,7 +299,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_users.service.js.html">services/users.service.js</a>, <a href="services_users.service.js.html#line34">line 34</a>
+        <a href="repository_users.repository.js.html">repository/users.repository.js</a>, <a href="repository_users.repository.js.html#line29">line 29</a>
     </li></ul></dd>
     
 
@@ -322,13 +322,28 @@
 
 
 
+<h5>Throws:</h5>
+
+        
+
+    <div class="param-desc">
+    
+        
+<span class="param-type"><a href="DatabaseException.html">DatabaseException</a></span>
+
+
+    
+    </div>
+
+
+    
 
 
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Utilisateur trouvé ou null
+    Utilisateur trouvé ou null si inexistant
 </div>
 
 
@@ -458,7 +473,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_users.service.js.html">services/users.service.js</a>, <a href="services_users.service.js.html#line44">line 44</a>
+        <a href="repository_users.repository.js.html">repository/users.repository.js</a>, <a href="repository_users.repository.js.html#line49">line 49</a>
     </li></ul></dd>
     
 
@@ -488,7 +503,7 @@
     <div class="param-desc">
     
         
-<span class="param-type"><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></span>
+<span class="param-type"><a href="DatabaseException.html">DatabaseException</a></span>
 
 
     
@@ -502,7 +517,7 @@
 
         
 <div class="param-desc">
-    Utilisateur trouvé ou null
+    Utilisateur trouvé ou null si inexistant
 </div>
 
 
@@ -531,255 +546,6 @@
     
 
     
-    <h4 class="name" id="login"><span class="type-signature">(async) </span>login<span class="signature">(params)</span><span class="type-signature"> &rarr; {Promise.&lt;{token: string, user: <a href="global.html#User">User</a>}>}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Authentifie un utilisateur et renvoie un token JWT.
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>params</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>email</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Email de l'utilisateur</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>password</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Mot de passe en clair</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_users.service.js.html">services/users.service.js</a>, <a href="services_users.service.js.html#line88">line 88</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Throws:</h5>
-
-        
-
-    <div class="param-desc">
-    
-        
-<span class="param-type"><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></span>
-|
-
-<span class="param-type"><a href="IncorrectDataException.html">IncorrectDataException</a></span>
-
-
-    
-    </div>
-
-
-    
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    Token JWT et utilisateur nettoyé
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;{token: string, user: <a href="global.html#User">User</a>}></span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
     <h4 class="name" id="register"><span class="type-signature">(async) </span>register<span class="signature">(params)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="global.html#User">User</a>>}</span></h4>
     
 
@@ -788,7 +554,7 @@
 
 
 <div class="description">
-    Enregistre un nouvel utilisateur (hash du mot de passe).
+    Enregistre un nouvel utilisateur.
 </div>
 
 
@@ -928,7 +694,7 @@
 
             
 
-            <td class="description last">Mot de passe en clair</td>
+            <td class="description last">Mot de passe hashé</td>
         </tr>
 
     
@@ -999,7 +765,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_users.service.js.html">services/users.service.js</a>, <a href="services_users.service.js.html#line61">line 61</a>
+        <a href="repository_users.repository.js.html">repository/users.repository.js</a>, <a href="repository_users.repository.js.html#line73">line 73</a>
     </li></ul></dd>
     
 
@@ -1029,10 +795,7 @@
     <div class="param-desc">
     
         
-<span class="param-type"><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></span>
-|
-
-<span class="param-type"><a href="DataAlreadyExistException.html">DataAlreadyExistException</a></span>
+<span class="param-type"><a href="DatabaseException.html">DatabaseException</a></span>
 
 
     
@@ -1046,7 +809,7 @@
 
         
 <div class="param-desc">
-    Utilisateur enregistré
+    Utilisateur créé
 </div>
 
 

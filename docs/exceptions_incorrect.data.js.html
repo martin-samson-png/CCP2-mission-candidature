@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: exceptions/incorrect.data.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,43 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: exceptions/incorrect.data.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @description Erreur levée lorsque les données fournies sont incorrectes (ex: identifiants invalides).
+ * @extends Error
+ *
+ * @example
+ * throw new IncorrectDataException("Identifiants incorrects");
+ *
+ * // Réponse JSON (via errorHandler)
+ * {
+ *   "status": 422,
+ *   "error": "Identifiants incorrects"
+ * }
+ */
+class IncorrectDataException extends Error {
+  /**
+   * @param {string} message - Message d'erreur descriptif
+   */
+  constructor(message) {
+    super(message);
+    this.name = "IncorrectDataException";
+    this.code = 422;
+  }
+}
 
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+export default IncorrectDataException;
+</code></pre>
+        </article>
+    </section>
 
 
 

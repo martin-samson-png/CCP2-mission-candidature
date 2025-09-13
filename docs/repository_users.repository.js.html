@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: services/users.service.js</title>
+    <title>JSDoc: Source: repository/users.repository.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: services/users.service.js</h1>
+    <h1 class="page-title">Source: repository/users.repository.js</h1>
 
     
 
@@ -26,121 +26,99 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import argon2 from "argon2";
-import jwt from "jsonwebtoken";
-import cleanUser from "../cleanUser.js";
-import ArgumentRequiredException from "../exceptions/argument.required.js";
-import IncorrectDataException from "../exceptions/incorrect.data.js";
-import DataAlreadyExistException from "../exceptions/data.already.exists.js";
+            <pre class="prettyprint source linenums"><code>import DatabaseException from "../exceptions/database.exception.js";
 
 /**
  * @typedef {Object} User
  * @property {number} id - ID unique de l'utilisateur
  * @property {string} username - Nom d'utilisateur
- * @property {string} email - Email
+ * @property {string} email - Adresse email
  * @property {string} password - Mot de passe hashé
  * @property {string} role - Rôle de l'utilisateur ("admin" | "user" | "volunteer")
  */
 
 /**
- * @description Service de gestion des utilisateurs.
- * Contient la logique métier liée à l'authentification et l'enregistrement.
+ * @description Repository des utilisateurs, fournit les méthodes d'accès à la base.
  */
-class UsersService {
+class UserRepository {
   /**
-   * @param {Object} usersRepository - Repository des utilisateurs
+   * @param {Object} pool - Instance de connexion MySQL (Pool)
    */
-  constructor(usersRepository) {
-    this.usersRepository = usersRepository;
+  constructor(pool) {
+    this.pool = pool;
   }
 
   /**
    * Récupère un utilisateur par son email.
    * @param {string} email - Email de l'utilisateur
-   * @returns {Promise&lt;User|null>} Utilisateur trouvé ou null
+   * @returns {Promise&lt;User|null>} Utilisateur trouvé ou null si inexistant
+   * @throws {DatabaseException}
    */
   async getUserByEmail(email) {
-    return await this.usersRepository.getUserByEmail(email);
+    try {
+      const [row] = await this.pool.query(
+        `SELECT * FROM users u WHERE u.email=?`,
+        [email]
+      );
+      return row[0] || null;
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la récuperation de l'utilisateur"
+      );
+    }
   }
 
   /**
    * Récupère un utilisateur par son ID.
    * @param {number} id - ID de l'utilisateur
-   * @returns {Promise&lt;User|null>} Utilisateur trouvé ou null
-   * @throws {ArgumentRequiredException}
+   * @returns {Promise&lt;User|null>} Utilisateur trouvé ou null si inexistant
+   * @throws {DatabaseException}
    */
   async getUserById(id) {
-    if (!id) {
-      throw new ArgumentRequiredException("Champ obligatoire manquant");
+    try {
+      const [row] = await this.pool.query(
+        `SELECT * FROM users u WHERE u.id=?`,
+        [id]
+      );
+      return row[0] || null;
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la récuperation de l'utilisateur"
+      );
     }
-    return await this.usersRepository.getUserById(id);
   }
 
   /**
-   * Enregistre un nouvel utilisateur (hash du mot de passe).
+   * Enregistre un nouvel utilisateur.
    * @param {Object} params
    * @param {string} params.username - Nom d'utilisateur
    * @param {string} params.email - Email
-   * @param {string} params.password - Mot de passe en clair
+   * @param {string} params.password - Mot de passe hashé
    * @param {string} params.role - Rôle ("admin" | "user" | "volunteer")
-   * @returns {Promise&lt;User>} Utilisateur enregistré
-   * @throws {ArgumentRequiredException|DataAlreadyExistException}
+   * @returns {Promise&lt;User>} Utilisateur créé
+   * @throws {DatabaseException}
    */
   async register({ username, email, password, role }) {
-    if (!username || !email || !password || !role) {
-      throw new ArgumentRequiredException("Champs obligatoires manquants");
+    try {
+      const [result] = await this.pool.query(
+        `INSERT INTO users(username, email, password, role) VALUES (?,?,?,?)`,
+        [username, email, password, role]
+      );
+      const userId = result.insertId;
+      const [row] = await this.pool.query(
+        `SELECT id, username, email, role FROM users u WHERE u.id=?`,
+        [userId]
+      );
+      return row[0];
+    } catch (err) {
+      throw new DatabaseException(
+        "Erreur lors de la création de l'utilisateur"
+      );
     }
-    const isEmailExist = await this.getUserByEmail(email);
-    if (isEmailExist) {
-      throw new DataAlreadyExistException("Utilisateur existant");
-    }
-    const hashedPassword = await argon2.hash(password, {
-      type: argon2.argon2id,
-    });
-    return await this.usersRepository.register({
-      username,
-      email,
-      password: hashedPassword,
-      role,
-    });
-  }
-
-  /**
-   * Authentifie un utilisateur et renvoie un token JWT.
-   * @param {Object} params
-   * @param {string} params.email - Email de l'utilisateur
-   * @param {string} params.password - Mot de passe en clair
-   * @returns {Promise&lt;{token: string, user: User}>} Token JWT et utilisateur nettoyé
-   * @throws {ArgumentRequiredException|IncorrectDataException}
-   */
-  async login({ email, password }) {
-    if (!email || !password) {
-      throw new ArgumentRequiredException("Champs obligatoires manquants");
-    }
-    const user = await this.getUserByEmail(email);
-    if (!user) {
-      throw new IncorrectDataException("Identifiants incorrects");
-    }
-
-    const verifyPassword = await argon2.verify(user.password, password);
-    if (!verifyPassword) {
-      throw new IncorrectDataException("Identifiants incorrects");
-    }
-
-    const token = jwt.sign(
-      { id: user.id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    return {
-      token,
-      user: cleanUser(user),
-    };
   }
 }
 
-export default UsersService;
+export default UserRepository;
 </code></pre>
         </article>
     </section>

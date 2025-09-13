@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: middleware/checkRole.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,47 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: middleware/checkRole.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @typedef {Object} Request - Objet Request d'Express
+ * @typedef {Object} Response - Objet Response d'Express
+ */
 
+/**
+ * @description Middleware de contrôle des rôles.
+ * Vérifie que l'utilisateur possède un rôle autorisé avant d'accéder à une ressource.
+ *
+ * @param {string[]} role - Liste des rôles autorisés
+ * @returns {function(Request, Response, Function): void} Middleware Express
+ *
+ * @example
+ * // Autoriser uniquement les administrateurs
+ * app.get("/admin", checkRole(["admin"]), (req, res) => {
+ *   res.send("Zone admin");
+ * });
+ */
+const checkRole = (role) => {
+  return (req, res, next) => {
+    const userRole = req.user.role;
+    if (!role.includes(userRole)) {
+      return res.status(403).json({ message: "Accès refusé" });
+    }
+    next();
+  };
+};
 
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+export default checkRole;
+</code></pre>
+        </article>
+    </section>
 
 
 

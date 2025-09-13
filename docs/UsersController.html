@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: UsersService</title>
+    <title>JSDoc: Class: UsersController</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: UsersService</h1>
+    <h1 class="page-title">Class: UsersController</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>UsersService<span class="signature">(usersRepository)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>UsersController<span class="signature">(usersService)</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -41,7 +41,7 @@
     
 
     
-    <h4 class="name" id="UsersService"><span class="type-signature"></span>new UsersService<span class="signature">(usersRepository)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="UsersController"><span class="type-signature"></span>new UsersController<span class="signature">(usersService)</span><span class="type-signature"></span></h4>
     
 
     
@@ -49,7 +49,7 @@
 
 
 <div class="description">
-    Service de gestion des utilisateurs.Contient la logique métier liée à l'authentification et l'enregistrement.
+    Contrôleur des utilisateurs.Gère les requêtes HTTP liées à l'inscription, l'authentification et la session.
 </div>
 
 
@@ -85,7 +85,7 @@
 
         <tr>
             
-                <td class="name"><code>usersRepository</code></td>
+                <td class="name"><code>usersService</code></td>
             
 
             <td class="type">
@@ -101,7 +101,7 @@
 
             
 
-            <td class="description last">Repository des utilisateurs</td>
+            <td class="description last">Service des utilisateurs</td>
         </tr>
 
     
@@ -142,7 +142,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_users.service.js.html">services/users.service.js</a>, <a href="services_users.service.js.html#line21">line 21</a>
+        <a href="controllers_users.controller.js.html">controllers/users.controller.js</a>, <a href="controllers_users.controller.js.html#line12">line 12</a>
     </li></ul></dd>
     
 
@@ -198,7 +198,7 @@
     
 
     
-    <h4 class="name" id="getUserByEmail"><span class="type-signature">(async) </span>getUserByEmail<span class="signature">(email)</span><span class="type-signature"> &rarr; {Promise.&lt;(<a href="global.html#User">User</a>|null)>}</span></h4>
+    <h4 class="name" id="authentification"><span class="type-signature">(async) </span>authentification<span class="signature">(req, res, next)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
     
 
     
@@ -206,7 +206,7 @@
 
 
 <div class="description">
-    Récupère un utilisateur par son email.
+    Vérifie l'authentification d'un utilisateur connecté.
 </div>
 
 
@@ -242,13 +242,13 @@
 
         <tr>
             
-                <td class="name"><code>email</code></td>
+                <td class="name"><code>req</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">Request</span>
 
 
             
@@ -258,7 +258,53 @@
 
             
 
-            <td class="description last">Email de l'utilisateur</td>
+            <td class="description last">Requête Express (req.user.id issu du middleware d'authentification)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#Response">Response</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Réponse Express</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>next</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Middleware suivant</td>
         </tr>
 
     
@@ -299,7 +345,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_users.service.js.html">services/users.service.js</a>, <a href="services_users.service.js.html#line34">line 34</a>
+        <a href="controllers_users.controller.js.html">controllers/users.controller.js</a>, <a href="controllers_users.controller.js.html#line79">line 79</a>
     </li></ul></dd>
     
 
@@ -328,7 +374,7 @@
 
         
 <div class="param-desc">
-    Utilisateur trouvé ou null
+    Envoie l'utilisateur authentifié en JSON
 </div>
 
 
@@ -339,7 +385,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;(<a href="global.html#User">User</a>|null)></span>
+<span class="param-type">Promise.&lt;void></span>
 
 
     </dd>
@@ -357,7 +403,7 @@
     
 
     
-    <h4 class="name" id="getUserById"><span class="type-signature">(async) </span>getUserById<span class="signature">(id)</span><span class="type-signature"> &rarr; {Promise.&lt;(<a href="global.html#User">User</a>|null)>}</span></h4>
+    <h4 class="name" id="login"><span class="type-signature">(async) </span>login<span class="signature">(req, res, next)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
     
 
     
@@ -365,7 +411,7 @@
 
 
 <div class="description">
-    Récupère un utilisateur par son ID.
+    Connecte un utilisateur et crée un cookie avec le token JWT.
 </div>
 
 
@@ -401,13 +447,13 @@
 
         <tr>
             
-                <td class="name"><code>id</code></td>
+                <td class="name"><code>req</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">number</span>
+<span class="param-type">Request</span>
 
 
             
@@ -417,7 +463,53 @@
 
             
 
-            <td class="description last">ID de l'utilisateur</td>
+            <td class="description last">Requête Express (body: { email, password })</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#Response">Response</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Réponse Express</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>next</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Middleware suivant</td>
         </tr>
 
     
@@ -458,7 +550,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_users.service.js.html">services/users.service.js</a>, <a href="services_users.service.js.html#line44">line 44</a>
+        <a href="controllers_users.controller.js.html">controllers/users.controller.js</a>, <a href="controllers_users.controller.js.html#line50">line 50</a>
     </li></ul></dd>
     
 
@@ -481,28 +573,13 @@
 
 
 
-<h5>Throws:</h5>
-
-        
-
-    <div class="param-desc">
-    
-        
-<span class="param-type"><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></span>
-
-
-    
-    </div>
-
-
-    
 
 
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Utilisateur trouvé ou null
+    Envoie l'utilisateur authentifié en JSON
 </div>
 
 
@@ -513,7 +590,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;(<a href="global.html#User">User</a>|null)></span>
+<span class="param-type">Promise.&lt;void></span>
 
 
     </dd>
@@ -531,7 +608,7 @@
     
 
     
-    <h4 class="name" id="login"><span class="type-signature">(async) </span>login<span class="signature">(params)</span><span class="type-signature"> &rarr; {Promise.&lt;{token: string, user: <a href="global.html#User">User</a>}>}</span></h4>
+    <h4 class="name" id="logout"><span class="type-signature">(async) </span>logout<span class="signature">(req, res, next)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
     
 
     
@@ -539,7 +616,7 @@
 
 
 <div class="description">
-    Authentifie un utilisateur et renvoie un token JWT.
+    Déconnecte un utilisateur (supprime le cookie JWT).
 </div>
 
 
@@ -575,13 +652,13 @@
 
         <tr>
             
-                <td class="name"><code>params</code></td>
+                <td class="name"><code>req</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">Request</span>
 
 
             
@@ -591,62 +668,20 @@
 
             
 
-            <td class="description last">
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>email</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Email de l'utilisateur</td>
+            <td class="description last">Requête Express</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>password</code></td>
+                <td class="name"><code>res</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><a href="global.html#Response">Response</a></span>
 
 
             
@@ -656,14 +691,30 @@
 
             
 
-            <td class="description last">Mot de passe en clair</td>
+            <td class="description last">Réponse Express</td>
         </tr>
 
     
-    </tbody>
-</table>
 
+        <tr>
+            
+                <td class="name"><code>next</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
             </td>
+
+            
+
+            
+
+            <td class="description last">Middleware suivant</td>
         </tr>
 
     
@@ -704,7 +755,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_users.service.js.html">services/users.service.js</a>, <a href="services_users.service.js.html#line88">line 88</a>
+        <a href="controllers_users.controller.js.html">controllers/users.controller.js</a>, <a href="controllers_users.controller.js.html#line97">line 97</a>
     </li></ul></dd>
     
 
@@ -727,31 +778,13 @@
 
 
 
-<h5>Throws:</h5>
-
-        
-
-    <div class="param-desc">
-    
-        
-<span class="param-type"><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></span>
-|
-
-<span class="param-type"><a href="IncorrectDataException.html">IncorrectDataException</a></span>
-
-
-    
-    </div>
-
-
-    
 
 
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Token JWT et utilisateur nettoyé
+    Envoie un message de confirmation en JSON
 </div>
 
 
@@ -762,7 +795,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;{token: string, user: <a href="global.html#User">User</a>}></span>
+<span class="param-type">Promise.&lt;void></span>
 
 
     </dd>
@@ -780,7 +813,7 @@
     
 
     
-    <h4 class="name" id="register"><span class="type-signature">(async) </span>register<span class="signature">(params)</span><span class="type-signature"> &rarr; {Promise.&lt;<a href="global.html#User">User</a>>}</span></h4>
+    <h4 class="name" id="register"><span class="type-signature">(async) </span>register<span class="signature">(req, res, next)</span><span class="type-signature"> &rarr; {Promise.&lt;void>}</span></h4>
     
 
     
@@ -788,7 +821,7 @@
 
 
 <div class="description">
-    Enregistre un nouvel utilisateur (hash du mot de passe).
+    Inscrit un nouvel utilisateur.
 </div>
 
 
@@ -824,13 +857,13 @@
 
         <tr>
             
-                <td class="name"><code>params</code></td>
+                <td class="name"><code>req</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">Request</span>
 
 
             
@@ -840,62 +873,20 @@
 
             
 
-            <td class="description last">
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>username</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Nom d'utilisateur</td>
+            <td class="description last">Requête Express (body: { username, email, password, role })</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>email</code></td>
+                <td class="name"><code>res</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type"><a href="global.html#Response">Response</a></span>
 
 
             
@@ -905,20 +896,20 @@
 
             
 
-            <td class="description last">Email</td>
+            <td class="description last">Réponse Express</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>password</code></td>
+                <td class="name"><code>next</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">function</span>
 
 
             
@@ -928,37 +919,7 @@
 
             
 
-            <td class="description last">Mot de passe en clair</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>role</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Rôle ("admin" | "user" | "volunteer")</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last">Middleware suivant</td>
         </tr>
 
     
@@ -999,7 +960,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="services_users.service.js.html">services/users.service.js</a>, <a href="services_users.service.js.html#line61">line 61</a>
+        <a href="controllers_users.controller.js.html">controllers/users.controller.js</a>, <a href="controllers_users.controller.js.html#line27">line 27</a>
     </li></ul></dd>
     
 
@@ -1022,31 +983,13 @@
 
 
 
-<h5>Throws:</h5>
-
-        
-
-    <div class="param-desc">
-    
-        
-<span class="param-type"><a href="ArgumentRequiredException.html">ArgumentRequiredException</a></span>
-|
-
-<span class="param-type"><a href="DataAlreadyExistException.html">DataAlreadyExistException</a></span>
-
-
-    
-    </div>
-
-
-    
 
 
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Utilisateur enregistré
+    Envoie l'utilisateur créé en JSON
 </div>
 
 
@@ -1057,7 +1000,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise.&lt;<a href="global.html#User">User</a>></span>
+<span class="param-type">Promise.&lt;void></span>
 
 
     </dd>

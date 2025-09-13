@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: exceptions/forbidden.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,43 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: exceptions/forbidden.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @description Erreur levée lorsqu'un utilisateur tente d'accéder à une ressource sans permission.
+ * @extends Error
+ *
+ * @example
+ * throw new ForbiddenException("Accès interdit");
+ *
+ * // Réponse JSON (via errorHandler)
+ * {
+ *   "status": 403,
+ *   "error": "Accès interdit"
+ * }
+ */
+class ForbiddenException extends Error {
+  /**
+   * @param {string} message - Message d'erreur descriptif
+   */
+  constructor(message) {
+    super(message);
+    this.name = "ForbiddenException";
+    this.code = 403;
+  }
+}
 
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+export default ForbiddenException;
+</code></pre>
+        </article>
+    </section>
 
 
 

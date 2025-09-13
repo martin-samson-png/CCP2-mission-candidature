@@ -1,6 +1,11 @@
 import cleanUser from "../cleanUser.js";
 
 /**
+ * @typedef {Object} Request - Objet Request d'Express
+ * @typedef {Object} Response - Objet Response d'Express
+ */
+
+/**
  * @description Contrôleur des utilisateurs.
  * Gère les requêtes HTTP liées à l'inscription, l'authentification et la session.
  */
@@ -14,8 +19,8 @@ class UsersController {
 
   /**
    * Inscrit un nouvel utilisateur.
-   * @param {import("express").Request} req - Requête Express (body: { username, email, password, role })
-   * @param {import("express").Response} res - Réponse Express
+   * @param {Request} req - Requête Express (body: { username, email, password, role })
+   * @param {Response} res - Réponse Express
    * @param {Function} next - Middleware suivant
    * @returns {Promise<void>} Envoie l'utilisateur créé en JSON
    */
@@ -37,8 +42,8 @@ class UsersController {
 
   /**
    * Connecte un utilisateur et crée un cookie avec le token JWT.
-   * @param {import("express").Request} req - Requête Express (body: { email, password })
-   * @param {import("express").Response} res - Réponse Express
+   * @param {Request} req - Requête Express (body: { email, password })
+   * @param {Response} res - Réponse Express
    * @param {Function} next - Middleware suivant
    * @returns {Promise<void>} Envoie l'utilisateur authentifié en JSON
    */
@@ -66,8 +71,8 @@ class UsersController {
 
   /**
    * Vérifie l'authentification d'un utilisateur connecté.
-   * @param {import("express").Request} req - Requête Express (req.user.id issu du middleware d'authentification)
-   * @param {import("express").Response} res - Réponse Express
+   * @param {Request} req - Requête Express (req.user.id issu du middleware d'authentification)
+   * @param {Response} res - Réponse Express
    * @param {Function} next - Middleware suivant
    * @returns {Promise<void>} Envoie l'utilisateur authentifié en JSON
    */
@@ -84,8 +89,8 @@ class UsersController {
 
   /**
    * Déconnecte un utilisateur (supprime le cookie JWT).
-   * @param {import("express").Request} req - Requête Express
-   * @param {import("express").Response} res - Réponse Express
+   * @param {Request} req - Requête Express
+   * @param {Response} res - Réponse Express
    * @param {Function} next - Middleware suivant
    * @returns {Promise<void>} Envoie un message de confirmation en JSON
    */

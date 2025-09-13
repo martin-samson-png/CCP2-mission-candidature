@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: cleanUser.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,43 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: cleanUser.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @description Supprime le champ `password` d'un utilisateur avant de le renvoyer.
+ *
+ * @param {Object|null} user - Objet utilisateur complet (ou null)
+ * @param {number} user.id - ID de l'utilisateur
+ * @param {string} user.username - Nom d'utilisateur
+ * @param {string} user.email - Email de l'utilisateur
+ * @param {string} user.password - Mot de passe hashé (sera supprimé)
+ * @param {string} user.role - Rôle de l'utilisateur
+ * @returns {Object|null} Utilisateur sans mot de passe, ou null si `user` est null
+ *
+ * @example
+ * const user = { id: 1, username: "Alice", email: "a@test.com", password: "xxx", role: "user" };
+ * const safeUser = cleanUser(user);
+ * // Résultat : { id: 1, username: "Alice", email: "a@test.com", role: "user" }
+ */
+const cleanUser = (user) => {
+  if (!user) {
+    return null;
+  }
+  const { password, ...safeUser } = user;
+  return safeUser;
+};
 
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+export default cleanUser;
+</code></pre>
+        </article>
+    </section>
 
 
 

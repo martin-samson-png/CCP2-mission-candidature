@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: exceptions/unauthorized.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,43 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: exceptions/unauthorized.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @description Erreur levée lorsqu'un utilisateur non authentifié tente d'accéder à une ressource protégée.
+ * @extends Error
+ *
+ * @example
+ * throw new UnauthorizedException("Authentification requise");
+ *
+ * // Réponse JSON (via errorHandler)
+ * {
+ *   "status": 401,
+ *   "error": "Authentification requise"
+ * }
+ */
+class UnauthorizedException extends Error {
+  /**
+   * @param {string} message - Message d'erreur descriptif
+   */
+  constructor(message) {
+    super(message);
+    this.name = "UnauthorizedException";
+    this.code = 401;
+  }
+}
 
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+export default UnauthorizedException;
+</code></pre>
+        </article>
+    </section>
 
 
 

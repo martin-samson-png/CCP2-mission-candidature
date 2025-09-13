@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: exceptions/argument.required.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,43 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: exceptions/argument.required.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @description Erreur levée lorsqu'un champ obligatoire est manquant.
+ * @extends Error
+ *
+ * @example
+ * throw new ArgumentRequiredException("Champs obligatoires manquants");
+ *
+ * // Réponse JSON (via errorHandler)
+ * {
+ *   "status": 400,
+ *   "error": "Champs obligatoires manquants"
+ * }
+ */
+class ArgumentRequiredException extends Error {
+  /**
+   * @param {string} message - Message d'erreur descriptif
+   */
+  constructor(message) {
+    super(message);
+    this.name = "ArgumentRequiredException";
+    this.code = 400;
+  }
+}
 
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+export default ArgumentRequiredException;
+</code></pre>
+        </article>
+    </section>
 
 
 

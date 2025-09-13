@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+    <title>JSDoc: Source: config/database.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,32 +17,53 @@
 
 <div id="main">
 
-    <h1 class="page-title">Home</h1>
+    <h1 class="page-title">Source: config/database.js</h1>
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import mysql2 from "mysql2/promise";
 
+/**
+ * @typedef {Object} Pool - Instance de connexion MySQL (créée via mysql2/promise)
+ */
 
-    <h3> </h3>
+/**
+ * @description Crée et renvoie un pool de connexions à la base de données MariaDB/MySQL.
+ *
+ * @returns {Pool} Instance de connexion MySQL
+ *
+ * @example
+ * import getPool from "./database.js";
+ *
+ * const pool = getPool();
+ * const [rows] = await pool.query("SELECT * FROM users");
+ */
+const getPool = () => {
+  try {
+    const pool = mysql2.createPool({
+      host: process.env.MARIA_HOST,
+      user: process.env.MARIA_USER,
+      password: process.env.MARIA_PASSWORD,
+      database: process.env.MARIA_DB,
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+    });
+    return pool;
+  } catch (err) {
+    console.error(err.message);
+  }
+};
 
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+export default getPool;
+</code></pre>
+        </article>
+    </section>
 
 
 
