@@ -32,15 +32,11 @@ const errorHandler = (err, req, res, next) => {
       return res.status(404).json({ status: 404, error: err.message });
     case "DataAlreadyExistException":
       return res.status(409).json({ status: 409, error: err.message });
-    case "IncorrectDataException":
-      return res.status(422).json({ status: 422, error: err.message });
     case "DatabaseException":
-      return res
-        .status(500)
-        .json({
-          status: 500,
-          error: err.message || "Erreur de base de données",
-        });
+      return res.status(500).json({
+        status: 500,
+        error: err.message || "Erreur de base de données",
+      });
     default:
       return res
         .status(500)

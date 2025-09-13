@@ -2,8 +2,8 @@ import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import cleanUser from "../cleanUser.js";
 import ArgumentRequiredException from "../exceptions/argument.required.js";
-import IncorrectDataException from "../exceptions/incorrect.data.js";
 import DataAlreadyExistException from "../exceptions/data.already.exists.js";
+import DataNotFoundException from "../exceptions/data.not.found.js";
 
 /**
  * @typedef {Object} User
@@ -83,7 +83,7 @@ class UsersService {
    * @param {string} params.email - Email de l'utilisateur
    * @param {string} params.password - Mot de passe en clair
    * @returns {Promise<{token: string, user: User}>} Token JWT et utilisateur nettoyé
-   * @throws {ArgumentRequiredException|IncorrectDataException}
+   * @throws {ArgumentRequiredException| DataNotFoundException}
    */
   async login({ email, password }) {
     if (!email || !password) {
@@ -91,12 +91,12 @@ class UsersService {
     }
     const user = await this.getUserByEmail(email);
     if (!user) {
-      throw new IncorrectDataException("Identifiants incorrects");
+      throw new DataNotFoundException("Identifiants incorrects");
     }
 
     const verifyPassword = await argon2.verify(user.password, password);
     if (!verifyPassword) {
-      throw new IncorrectDataException("Identifiants incorrects");
+      throw new DataNotFoundException("Identifiants incorrects");
     }
 
     const token = jwt.sign(
