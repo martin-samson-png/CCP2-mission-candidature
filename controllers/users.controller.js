@@ -45,11 +45,24 @@ class UsersController {
 
   async authentification(req, res) {
     const userId = req.user.id;
-    console.log(userId);
-
     try {
       const user = await this.usersService.getUserById(userId);
       res.status(200).json(cleanUser(user));
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).json({ erreur: err.message });
+    }
+  }
+
+  async logout(req, res) {
+    try {
+      res.cookie("token", "", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        expires: new Date(0),
+      });
+      res.status(200).json({ message: "Deconnexion réussie" });
     } catch (err) {
       console.error(err.message);
       res.status(500).json({ erreur: err.message });

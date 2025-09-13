@@ -6,9 +6,7 @@ class UserRepository {
   async getUserByEmail(email) {
     const [row] = await this.pool.query(
       `
-      SELECT * 
-      FROM users u
-      WHERE u.email=?
+      SELECT * FROM users u WHERE u.email=?
       `,
       [email]
     );
@@ -18,9 +16,7 @@ class UserRepository {
   async getUserById(id) {
     const [row] = await this.pool.query(
       `
-      SELECT *
-      FROM users u
-      WHERE u.id=?
+      SELECT * FROM users u WHERE u.id=?
       `,
       [id]
     );
@@ -37,8 +33,7 @@ class UserRepository {
     const [row] = await this.pool.query(
       `
       SELECT id, username, email, role
-      FROM users u
-      WHERE u.id=?
+      FROM users u WHERE u.id=?
       `,
       [userId]
     );

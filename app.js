@@ -3,6 +3,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import buildContainer from "./build.container.js";
 import usersRoute from "./routes/users.route.js";
+import missionsRoute from "./routes/missions.route.js";
 
 dotenv.config();
 
@@ -13,8 +14,10 @@ app.use(cookieParser());
 
 const container = buildContainer();
 const usersController = container.usersController;
+const missionsController = container.missionsController;
 
 app.use("/users", usersRoute(usersController));
+app.use("/missions", missionsRoute(missionsController));
 
 app.listen(PORT, () => {
   console.log("LocalHost connecté", PORT);
