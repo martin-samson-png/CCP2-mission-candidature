@@ -45,6 +45,13 @@ class MissionsService {
     return await this.missionsRepository.getMissionByUserId(userId);
   }
 
+  async getBrowsing(userId) {
+    if (!userId) {
+      throw new Error("Champs manquant");
+    }
+    return await this.missionsRepository.getBrowsing(userId);
+  }
+
   async getAllMissions() {
     return await this.missionsRepository.getAllMissions();
   }
@@ -72,7 +79,7 @@ class MissionsService {
   }
 
   async deleteMission(id, userId) {
-    if (!id) {
+    if (!id || !idUser) {
       throw new Error("Champs manquant");
     }
     try {

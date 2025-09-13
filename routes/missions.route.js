@@ -11,6 +11,9 @@ const missionsRoute = (missionsController) => {
   router.get("/asso", checkAuth, (req, res) =>
     missionsController.getMissionByUserId(req, res)
   );
+  router.get("/browsing", checkAuth, (req, res) =>
+    missionsController.getBrowsing(req, res)
+  );
   router.get("/", (req, res) => missionsController.getAllMissions(req, res));
   router.put("/update/:id", checkAuth, (req, res) =>
     missionsController.updateMission(req, res)
