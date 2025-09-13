@@ -11,7 +11,7 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use(cookieParser());
 
-const container = buildContainer;
+const container = buildContainer();
 const usersController = container.usersController;
 
 app.use("/users", usersRoute(usersController));
